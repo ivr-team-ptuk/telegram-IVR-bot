@@ -19,7 +19,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def inst(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("هذا البوت يعمل عن طريق الأزرار، اختر الخيار الذي تريده للوصول إلى المادة التي تحتاجها، البوت فيه أقسام للمواد وشروحاتها وملخصاتها وكتبها، وأيضاً فيه أقسام للأسئلة الشائعة والاستفسارات، لأي ملاحظات أو تعديلات يمكنكم إرسال /note ثم إرسال الملاحظة ")
 async def bots(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("بوت المساعد الذكي: @tamfk2006\nبوت الامتحانات: @Tak6Bot\بوت المكتبة: @IVR_Library_bot")
+    await update.message.reply_text("بوت المساعد الذكي: @tamfk2006\nبوت الامتحانات: @Tak6Bot\nبوت المكتبة: @IVR_Library_bot")
 
 async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
