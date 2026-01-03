@@ -17,7 +17,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup=reply_markup
     )
 async def inst(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("هذا البوت يعمل عن طريق الأزرار، اختر الخيار الذي تريده للوصول إلى المادة التي تحتاجها، البوت فيه أقسام للمواد وشروحاتها وملخصاتها وكتبها، وأيضاً فيه أقسام للأسئلة الشائعة والاستفسارات، لأي ملاحظات أو تعديلات يمكنكم إرسال /note ثم إرسال الملاحظة")
+    await update.message.reply_text("هذا البوت يعمل عن طريق الأزرار، اختر الخيار الذي تريده للوصول إلى المادة التي تحتاجها، البوت فيه أقسام للمواد وشروحاتها وملخصاتها وكتبها، وأيضاً فيه أقسام للأسئلة الشائعة والاستفسارات، لأي ملاحظات أو تعديلات يمكنكم إرسال /note ثم إرسال الملاحظة ")
+async def bots(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("بوت المساعد الذكي: @tamfk2006\nبوت الامتحانات: @Tak6Bot\بوت المكتبة: @IVR_Library_bot")
 
 async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
@@ -134,6 +136,7 @@ def main():
     app = Application.builder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("inst", inst))
+    app.add_handler(CommandHandler("bots", bots))
     app.add_handler(CallbackQueryHandler(buttons))
     app.add_handler(CommandHandler("note", note_command))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_note_text))
