@@ -1,147 +1,346 @@
 import os
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes, MessageHandler, filters
+from telegram.ext import (
+    Application,
+    CommandHandler,
+    CallbackQueryHandler,
+    ContextTypes,
+    MessageHandler,
+    filters
+)
+
 TOKEN = os.getenv("BOT_TOKEN")
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+ROADMAP_LINKS = {
+    "cse_rm_ai": "https://example.com/ai",
+    "cse_rm_ds": "https://example.com/ds",
+    "cse_rm_robotics": "https://example.com/robotics",
+    "cse_rm_cyber": "https://example.com/cyber",
+    "cse_rm_fullstack": "https://example.com/fullstack",
+    "cse_rm_frontend": "https://example.com/frontend",
+    "cse_rm_backend": "https://example.com/backend",
+    "cse_rm_mobile": "https://example.com/mobile",
+    "cse_rm_uiux": "https://example.com/uiux",
+    "cse_rm_qa": "https://example.com/qa",
+    "cse_rm_lowlevel": "https://example.com/lowlevel",
+    "cse_rm_game": "https://example.com/game",
+}
+
+# =========================
+# Helpers
+# =========================
+
+def main_menu_keyboard():
+    return InlineKeyboardMarkup([
+        [InlineKeyboardButton("💻 هندسة الحاسوب", callback_data="cse")],
+        [InlineKeyboardButton("⚙️ هندسة الميكانيك والميكاترونيكس", callback_data="me")],
+        [InlineKeyboardButton("⚡ الهندسة الكهربائية والأتمتة الصناعية", callback_data="ee")],
+        [InlineKeyboardButton("📡 هندسة الاتصالات", callback_data="te")],
+        [InlineKeyboardButton("🏗 هندسة البناء والهندسة المدنية", callback_data="ce")],
+        [InlineKeyboardButton("❓ أسئلة شائعة", callback_data="faq")]
+    ])
+
+
+def specialization_menu(spec_code: str):
+    return InlineKeyboardMarkup([
+        [InlineKeyboardButton("📘 المواد", callback_data=f"{spec_code}_subjects")],
+        [InlineKeyboardButton("🗺 Roadmaps", callback_data=f"{spec_code}_roadmaps")],
+        [InlineKeyboardButton("🔙 رجوع", callback_data="back_main")]
+    ])
+
+
+
+def subjects_menu(spec_code: str):
+    return InlineKeyboardMarkup([
+        [InlineKeyboardButton("📗 إجباري جامعة", callback_data=f"{spec_code}_um")],
+        [InlineKeyboardButton("📙 إجباري كلية", callback_data=f"{spec_code}_cm")],
+        [InlineKeyboardButton("📕 إجباري تخصص", callback_data=f"{spec_code}_dm")],
+        [InlineKeyboardButton("📒 اختياري تخصص", callback_data=f"{spec_code}_do")],
+        [InlineKeyboardButton("📓 اختياري جامعة", callback_data=f"{spec_code}_uo")],
+        [InlineKeyboardButton("🔙 رجوع", callback_data=spec_code)]
+    ])
+
+
+def subject_content_menu(back_callback: str, with_reports=False):
     keyboard = [
-        [InlineKeyboardButton("📚 هندسة أنظمة الحاسوب", callback_data="cse")],
-        [InlineKeyboardButton("❓ أسئلة شائعة", callback_data="faq")],
-        [InlineKeyboardButton("📚 هندسة الميكانيك", callback_data="me")], 
-        [InlineKeyboardButton("📚 الهندسة الكهربائية", callback_data="ee")], 
-        [InlineKeyboardButton("📚 هندسة الطاقة", callback_data="ene")] 
+        [InlineKeyboardButton("📄 تلاخيص", callback_data="link")],
+        [InlineKeyboardButton("🎥 شروحات", callback_data="link")],
+        [InlineKeyboardButton("📘 الكتاب", callback_data="link")],
+        [InlineKeyboardButton("📝 امتحانات", callback_data="link")],
+        [InlineKeyboardButton("📂 واجبات", callback_data="link")]
     ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    await update.message.reply_text(
-        "أهلاً بك 👋\nاختر ما تريد:",
-        reply_markup=reply_markup
+    if with_reports:
+        keyboard.append([InlineKeyboardButton("📑 تقارير", callback_data="link")])
+
+    keyboard.append([InlineKeyboardButton("🔙 رجوع", callback_data=back_callback)])
+    return InlineKeyboardMarkup(keyboard)
+
+
+# =========================
+# Commands
+# =========================
+
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    intro_text = (
+        "👋 أهلاً بك في بوت الهندسة الجامعية\n\n"
+        "📌 **طريقة استخدام البوت:**\n"
+        "• البوت يعمل بالكامل عبر الأزرار.\n"
+        "• اختر تخصصك من القائمة الرئيسية.\n"
+        "• ادخل إلى قسم المواد ثم اختر نوع المادة.\n"
+        "• داخل كل مادة ستجد التلاخيص، الشروحات، الكتب، الامتحانات وغيرها.\n"
+        "• يمكنك دائمًا الرجوع باستخدام زر (رجوع).\n\n"
+        "💡 لأي ملاحظات أو اقتراحات استخدم الأمر:\n"
+        "/note\n\n"
+        "👇 اختر من القائمة:"
     )
+
+    await update.message.reply_text(
+        intro_text,
+        reply_markup=main_menu_keyboard()
+    )
+
+
 async def inst(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("هذا البوت يعمل عن طريق الأزرار، اختر الخيار الذي تريده للوصول إلى المادة التي تحتاجها، البوت فيه أقسام للمواد وشروحاتها وملخصاتها وكتبها، وأيضاً فيه أقسام للأسئلة الشائعة والاستفسارات، لأي ملاحظات أو تعديلات يمكنكم إرسال /note ثم إرسال الملاحظة ")
+    await update.message.reply_text(
+        "📘 هذا البوت تعليمي يعتمد على القوائم.\n"
+        "تنقّل بين التخصصات والمواد باستخدام الأزرار فقط."
+    )
+
+
 async def bots(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("بوت المساعد الذكي: @tamfk2006\nبوت الامتحانات: @Tak6Bot\nبوت المكتبة: @IVR_Library_bot")
+    await update.message.reply_text(
+        "🤖 البوتات المرتبطة:\n"
+        "@tamfk2006\n"
+        "@Tak6Bot\n"
+        "@IVR_Library_bot"
+    )
+
+
+# =========================
+# Callback Buttons
+# =========================
 
 async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
+    data = query.data
 
-    if query.data == "cse":
-        keyboard = [
-            [InlineKeyboardButton("📘 المواد", callback_data="subjects")],
-            [InlineKeyboardButton("🗺 Roadmaps", callback_data="roadmaps")],
-            [InlineKeyboardButton("رجوع ➔", callback_data="back_main")]
-        ]
+    # ---- Main specializations ----
+    if data in ["cse", "me", "ee", "te", "ce"]:
+        titles = {
+            "cse": "💻 هندسة الحاسوب",
+            "me": "⚙️ هندسة الميكانيك والميكاترونيكس",
+            "ee": "⚡ الهندسة الكهربائية والأتمتة الصناعية",
+            "te": "📡 هندسة الاتصالات",
+            "ce": "🏗 هندسة البناء والهندسة المدنية"
+        }
+    
         await query.edit_message_text(
-            text="هندسة أنظمة الحاسوب:",
+            text=titles[data],
+            reply_markup=specialization_menu(data)
+        )
+
+
+    # ---- Subjects ----
+    elif data.endswith("_subjects"):
+        spec = data.replace("_subjects", "")
+        await query.edit_message_text(
+            text="📘 اختر نوع المواد:",
+            reply_markup=subjects_menu(spec)
+        )
+
+    # ---- Subject lists (example implementation) ----
+    elif data.endswith(("_um", "_cm", "_dm", "_do", "_uo")):
+        await query.edit_message_text(
+            text="📚 اختر مادة:",
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("مادة 1", callback_data=f"{data}_s1")],
+                [InlineKeyboardButton("مادة 2", callback_data=f"{data}_s2")],
+                [InlineKeyboardButton("مادة 3", callback_data=f"{data}_s3")],
+                [InlineKeyboardButton("🔙 رجوع", callback_data=data.split("_")[0] + "_subjects")]
+            ])
+        )
+
+    # ---- Inside subject ----
+    elif "_s" in data:
+        with_reports = data.startswith("cse_cm")  # مثال: مواد كلية فيها تقارير
+        await query.edit_message_text(
+            text="📖 محتوى المادة:",
+            reply_markup=subject_content_menu(
+                back_callback=data.rsplit("_", 1)[0],
+                with_reports=with_reports
+            )
+        )
+
+    # ---- Roadmaps ----
+    elif data == "cse_roadmaps":
+        keyboard = [
+            [InlineKeyboardButton("🤖 AI & Machine Learning", callback_data="cse_rm_ai")],
+            [InlineKeyboardButton("📊 Data Science", callback_data="cse_rm_ds")],
+            [InlineKeyboardButton("🤖 Robotics", callback_data="cse_rm_robotics")],
+            [InlineKeyboardButton("🔐 Cybersecurity", callback_data="cse_rm_cyber")],
+            [InlineKeyboardButton("🌐 Full Stack Developer", callback_data="cse_rm_fullstack")],
+            [InlineKeyboardButton("🎨 Frontend", callback_data="cse_rm_frontend")],
+            [InlineKeyboardButton("🧠 Backend", callback_data="cse_rm_backend")],
+            [InlineKeyboardButton("📱 Mobile Application", callback_data="cse_rm_mobile")],
+            [InlineKeyboardButton("🖌 UI / UX", callback_data="cse_rm_uiux")],
+            [InlineKeyboardButton("🧪 QA", callback_data="cse_rm_qa")],
+            [InlineKeyboardButton("⚙ Low Level Programming", callback_data="cse_rm_lowlevel")],
+            [InlineKeyboardButton("🎮 Game Developer", callback_data="cse_rm_game")],
+            [InlineKeyboardButton("🔙 رجوع", callback_data="cse")]
+        ]
+        
+        await query.edit_message_text(
+            text="🗺 Roadmaps – هندسة الحاسوب",
             reply_markup=InlineKeyboardMarkup(keyboard)
         )
 
-    elif query.data == "faq":
-        keyboard = [
-          [InlineKeyboardButton("رجوع ➔", callback_data="back_main")]
-        ]
-        await query.edit_message_text(
-            text=
-            "❓ الأسئلة الشائعة:\n\n• كيف أجد مواد كل مساق؟\n→ من قسم المواد.\n\n• هل المحتوى يتحدث؟\n→ نعم، يتم تحديثه دوريًا.",
-            reply_markup=InlineKeyboardMarkup(keyboard)
-        )
-    elif query.data == "subjects":
-        keyboard = [
-            [InlineKeyboardButton("🧮 مواد السنة الأولى", callback_data="cse_year1")],
-            [InlineKeyboardButton("💻 مواد السنة الثانية", callback_data="cse_year2")],
-            [InlineKeyboardButton("⚙️ مواد السنة الثالثة", callback_data="cse_year3")],
-            [InlineKeyboardButton("رجوع ➔", callback_data="back_cse")]
-        ]
-        await query.edit_message_text(
-            text="📘 مواد هندسة أنظمة الحاسوب:",
-            reply_markup=InlineKeyboardMarkup(keyboard)
-        )
-    elif query.data == "back_cse":
-        keyboard = [
-          [InlineKeyboardButton("📘 المواد", callback_data="subjects")],
-          [InlineKeyboardButton("🗺 Roadmaps", callback_data="roadmaps")],
-          [InlineKeyboardButton("رجوع ➔", callback_data="back_main")]
-          
-        ]
-        await query.edit_message_text(
-          text="هندسة أنظمة الحاسوب:",
-          reply_markup=InlineKeyboardMarkup(keyboard)
-        )
-    elif query.data == "back_main":
-      keyboard = [
-          [InlineKeyboardButton("📚 هندسة أنظمة الحاسوب", callback_data="cse")],
-          [InlineKeyboardButton("❓ أسئلة شائعة", callback_data="faq")],
-          [InlineKeyboardButton("📚 هندسة الميكانيك", callback_data="me")], 
-          [InlineKeyboardButton("📚 الهندسة الكهربائية", callback_data="ee")], 
-          [InlineKeyboardButton("📚 هندسة الطاقة", callback_data="ene")] 
-      ]
-      await query.edit_message_text(
-        text="أهلاً بك 👋\nاختر ما تريد:",
-        reply_markup=InlineKeyboardMarkup(keyboard)
-      )
-    elif query.data == "roadmaps":
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        file_path = os.path.join(base_dir, "resonsOfIOSStrength.docx")
-
-    # إرسال الملف كرسالة مستقلة
-        await query.message.reply_document(
-            document=open(file_path, "rb"),
-            caption="🗺 Roadmap هندسة أنظمة الحاسوب"
+    elif data in ROADMAP_LINKS:
+        await query.message.reply_text(
+            f"🔗 رابط المسار:\n{ROADMAP_LINKS[data]}"
     )
-
-    # إرسال قائمة جديدة بدل تعديل القديمة
-        keyboard = [
-            [InlineKeyboardButton("📘 المواد", callback_data="subjects")],
-            [InlineKeyboardButton("🗺 Roadmaps", callback_data="roadmaps")],
-            [InlineKeyboardButton("🔙 رجوع", callback_data="back_main")]
-        ]
 
         await query.message.reply_text(
-            text="هندسة أنظمة الحاسوب:",
-            reply_markup=InlineKeyboardMarkup(keyboard)
+            "🗺 Roadmaps – هندسة الحاسوب",
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("🔙 رجوع", callback_data="cse_roadmaps")]
+            ])
         )
 
-      
+    # ---- FAQ ----
+    elif data == "faq":
         keyboard = [
-            [InlineKeyboardButton("📘 المواد", callback_data="subjects")],
-            [InlineKeyboardButton("🗺 Roadmaps", callback_data="roadmaps")],
+            [InlineKeyboardButton("🏫 عن الجامعة", callback_data="faq_university")],
+            [InlineKeyboardButton("🎓 عن المنح", callback_data="faq_scholarships")],
+            [InlineKeyboardButton("📚 عن الدراسة وطرقها", callback_data="faq_study")],
+            [InlineKeyboardButton("👨‍🏫 عن المدرسين", callback_data="faq_teachers")],
+            [InlineKeyboardButton("🐣 أسئلة سنافر", callback_data="faq_freshmen")],
+            [InlineKeyboardButton("💡 نصائح", callback_data="faq_tips")],
             [InlineKeyboardButton("🔙 رجوع", callback_data="back_main")]
         ]
+
         await query.edit_message_text(
-            text="هندسة أنظمة الحاسوب:",
+            text="❓ الأسئلة الشائعة:",
             reply_markup=InlineKeyboardMarkup(keyboard)
         )
-async def note_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    context.user_data["waiting_for_note"] = True
-    await update.message.reply_text(
-        "✍️ أرسل الآن النص الذي تريد توجيهه:"
-    )
+
+    elif data == "faq_university":
+        await query.edit_message_text(
+            text="🏫 عن الجامعة:\n\n"
+                 "س: هل الجامعة معترف بها؟\n"
+                 "ج: نعم، الجامعة معترف بها رسميًا.\n\n"
+                 "س: أين تقع الجامعة؟\n"
+                 "ج: يتم تحديد الموقع حسب الكلية.",
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("🔙 رجوع", callback_data="faq")]
+            ])
+        )
+
+    elif data == "faq_scholarships":
+        await query.edit_message_text(
+            text="🎓 عن المنح:\n\n"
+                 "س: هل توجد منح؟\n"
+                 "ج: نعم، توجد منح تفوق ومنح دعم.\n\n"
+                 "س: كيف أقدم على منحة؟\n"
+                 "ج: عبر شؤون الطلاب.",
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("🔙 رجوع", callback_data="faq")]
+            ])
+        )
+
+    elif data == "faq_study":
+        await query.edit_message_text(
+            text="📚 عن الدراسة وطرقها:\n\n"
+                 "س: هل الدراسة صعبة؟\n"
+                 "ج: تحتاج التزام وتنظيم وقت.\n\n"
+                 "س: هل المحاضرات مسجلة؟\n"
+                 "ج: يعتمد على المادة.",
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("🔙 رجوع", callback_data="faq")]
+            ])
+        )
+
+    elif data == "faq_teachers":
+        await query.edit_message_text(
+            text="👨‍🏫 عن المدرسين:\n\n"
+                 "س: هل المدرسون متعاونون؟\n"
+                 "ج: أغلبهم متعاونون داخل المحاضرات.",
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("🔙 رجوع", callback_data="faq")]
+            ])
+        )
+
+    elif data == "faq_freshmen":
+        await query.edit_message_text(
+            text="🐣 أسئلة سنافر:\n\n"
+                 "س: ماذا أدرس أولًا؟\n"
+                 "ج: ركز على الأساسيات.\n\n"
+                 "س: كيف أنظم وقتي؟\n"
+                 "ج: جدول أسبوعي بسيط.",
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("🔙 رجوع", callback_data="faq")]
+            ])
+        )
+
+    elif data == "faq_tips":
+        await query.edit_message_text(
+            text="💡 نصائح:\n\n"
+                 "• لا تؤجل الدراسة\n"
+                 "• تابع التلاخيص\n"
+                 "• اسأل ولا تتردد",
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("🔙 رجوع", callback_data="faq")]
+            ])
+        )
+
+    # ---- Back to main ----
+    elif data == "back_main":
+        await query.edit_message_text(
+            text="👇 اختر من القائمة:",
+            reply_markup=main_menu_keyboard()
+        )
+
+
+# =========================
+# Notes forwarding
+# =========================
 
 TARGET_CHAT_ID = -5156036324
+
+async def note_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data["waiting_for_note"] = True
+    await update.message.reply_text("✍️ أرسل الملاحظة الآن:")
+
 
 async def handle_note_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if context.user_data.get("waiting_for_note"):
         await context.bot.forward_message(
-        chat_id=TARGET_CHAT_ID,
-        from_chat_id=update.effective_chat.id,
-        message_id=update.message.message_id
-)
-
-
-        await update.message.reply_text("✅ تم إرسال الملاحظة بنجاح.")
+            chat_id=TARGET_CHAT_ID,
+            from_chat_id=update.effective_chat.id,
+            message_id=update.message.message_id
+        )
+        await update.message.reply_text("✅ تم إرسال الملاحظة.")
         context.user_data["waiting_for_note"] = False
 
 
+# =========================
+# Main
+# =========================
+
 def main():
     app = Application.builder().token(TOKEN).build()
+
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("inst", inst))
     app.add_handler(CommandHandler("bots", bots))
-    app.add_handler(CallbackQueryHandler(buttons))
     app.add_handler(CommandHandler("note", note_command))
+
+    app.add_handler(CallbackQueryHandler(buttons))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_note_text))
+
     print("Bot is running...")
     app.run_polling()
+
 
 if __name__ == "__main__":
     main()
