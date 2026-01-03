@@ -1,4 +1,4 @@
-import os
+import os, time
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     Application,
@@ -134,7 +134,7 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "te": "📡 هندسة الاتصالات",
             "ce": "🏗 هندسة البناء والهندسة المدنية"
         }
-    
+
         await query.edit_message_text(
             text=titles[data],
             reply_markup=specialization_menu(data)
@@ -189,7 +189,7 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
             [InlineKeyboardButton("🎮 Game Developer", callback_data="cse_rm_game")],
             [InlineKeyboardButton("🔙 رجوع", callback_data="cse")]
         ]
-        
+
         await query.edit_message_text(
             text="🗺 Roadmaps – هندسة الحاسوب",
             reply_markup=InlineKeyboardMarkup(keyboard)
@@ -301,21 +301,29 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
     # ---- Remove the sent note ----
     elif data == "delete_note":
-    msg_id = context.user_data.get("last_note_msg_id")
-    if msg_id:
+        msg_id = context.user_data.get("last_note_msg_id")
+        note_time = context.user_data.get("note_time")
+        
+        if not msg_id or not note_time:
+            await query.answer("❌ لا توجد ملاحظة للحذف", show_alert=True)
+            return
+        
+        if time.time() - note_time > 5:
+            await query.answer("⏱ انتهت مهلة الحذف", show_alert=True)
+            await query.message.edit_text("❌ انتهت مهلة حذف الملاحظة.")
+            return
+        
         await context.bot.delete_message(
             chat_id=TARGET_CHAT_ID,
             message_id=msg_id
         )
+        
         await query.message.edit_text("🗑 تم حذف الملاحظة بنجاح.")
-
-
-
 # =========================
 # Notes forwarding
 # =========================
 
-TARGET_CHAT_ID = -5156036324
+TARGET_CHAT_ID = -1002905917338
 
 async def note_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data["waiting_for_note"] = True
@@ -324,17 +332,31 @@ async def note_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def handle_note_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if context.user_data.get("waiting_for_note"):
-        sent_msg = await context.bot.copy_message(
-            chat_id=TARGET_CHAT_ID,
-            from_chat_id=update.effective_chat.id,
-            message_id=update.message.message_id
+        user = update.effective_user
+        note_text = update.message.text
+        username_text = f"@{user.username}" if user.username else "—"
+        full_message = (
+            "📩 ملاحظة جديدة\n\n"
+            f"📝 النص:\n{note_text}\n\n"
+            "──────────────\n"
+            f"👤 الاسم: {user.full_name}\n"
+            f"🆔 Telegram ID: {user.id}\n"
+             f"🔗 Username: {username_text}"
         )
+
+        sent_msg = await context.bot.send_message(
+            chat_id=TARGET_CHAT_ID,
+            text=full_message
+        )
+
+        # حفظ بيانات الحذف
         context.user_data["last_note_msg_id"] = sent_msg.message_id
+        context.user_data["note_time"] = time.time()
 
         await update.message.reply_text(
     "✅ تم إرسال الملاحظة.",
             reply_markup=InlineKeyboardMarkup([
-                [InlineKeyboardButton("🗑 حذف الملاحظة", callback_data="delete_msg")]
+                [InlineKeyboardButton("🗑 حذف الملاحظة", callback_data="delete_note")]
             ])
 )
         context.user_data["waiting_for_note"] = False
