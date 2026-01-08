@@ -56,18 +56,6 @@ def subjects_menu(spec_code: str):
     ])
 
 
-def subject_content_menu(back_callback: str, with_reports=False):
-    keyboard = [
-        [InlineKeyboardButton("📄 تلاخيص", callback_data="link"), InlineKeyboardButton("🎥 شروحات", callback_data="link"), InlineKeyboardButton("📘 الكتاب", callback_data="link")],
-        [InlineKeyboardButton("📝 امتحانات", callback_data="link"), InlineKeyboardButton("📂 واجبات", callback_data="link")]
-    ]
-    if with_reports:
-        keyboard.append([InlineKeyboardButton("📑 تقارير", callback_data="link")])
-
-    keyboard.append([InlineKeyboardButton("🔙 رجوع", callback_data=back_callback)], InlineKeyboardButton("🏠 القائمة الرئيسية", callback_data="back_main"))
-    return InlineKeyboardMarkup(keyboard)
-
-
 # =========================
 # Commands
 # =========================
@@ -143,27 +131,20 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # ---- Subject lists (example implementation) ----
     elif data.endswith(("_um", "_cm", "_dm", "_do", "_uo")):
-        await query.edit_message_text(
-            text="📚 اختر مادة:",
-            reply_markup=InlineKeyboardMarkup([
-                [InlineKeyboardButton("مادة 1", callback_data=f"{data}_s1")],
-                [InlineKeyboardButton("مادة 2", callback_data=f"{data}_s2")],
-                [InlineKeyboardButton("مادة 3", callback_data=f"{data}_s3")],
-                [InlineKeyboardButton("مادة 4", callback_data=f"{data}_s4")],
-                [InlineKeyboardButton("🔙 رجوع", callback_data=data.split("_")[0] + "_subjects"), InlineKeyboardButton("🏠 القائمة الرئيسية", callback_data="back_main")]
-            ])
-        )
-
-    # ---- Inside subject ----
-    elif "_s" in data:
-        with_reports = data.startswith("cse_cm")  # مثال: مواد كلية فيها تقارير
-        await query.edit_message_text(
-            text="📖 محتوى المادة:",
-            reply_markup=subject_content_menu(
-                back_callback=data.rsplit("_", 1)[0],
-                with_reports=with_reports
-            )
-        )
+    await query.edit_message_text(
+        text="📚 اختر مادة:",
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("مادة 1", callback_data=f"{data}_s1")],
+            [InlineKeyboardButton("مادة 2", callback_data=f"{data}_s2")],
+            [InlineKeyboardButton("🔙 رجوع", callback_data=data.split("_")[0] + "_subjects"),
+             InlineKeyboardButton("🏠 القائمة الرئيسية", callback_data="back_main")]
+        ])
+    )
+    
+    elif data in SUBJECT_LINKS:
+    await query.message.reply_text(
+        f"📂 مواد المادة:\n{SUBJECT_LINKS[data]}"
+    )
 
     # ---- Roadmaps ----
     elif data == "cse_roadmaps":
