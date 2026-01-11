@@ -200,6 +200,8 @@ SUBJECT_LINKS = {
     
     # هندسة الحاسوب – إجباري تخصص
     "cse_dm_cpp": "🔗 كل ما يخص مادة برمجة الحاسوب:\nhttps://drive.google.com/drive/folders/1dfB641lJ4aW7OCMhiXzb9CbHD57ScRKY?hl=ar",
+    "cse_dm_java": "🔗 كل ما يخص مادة البرمجة الكينونية:\nhttps://drive.google.com/drive/folders/16mlcz7332pqsXWDcVM45Ez9Hi8KE2DWN?hl=ar",
+    "cse_dm_ds": "🔗 كل ما يخص مادة تركيب البيانات:\nhttps://drive.google.com/drive/folders/1MU9nY5LtI6_qzvvlIsM8p_JE9-OgYi7Z?hl=ar",
     "cse_dm_dslab": "🔗 كل ما يخص مادة مختبر تركيب البيانات:\nhttps://drive.google.com/drive/folders/1eMTzUX_1TvhkoWctA64IsHP7nokKtTVa?hl=ar",
     "cse_dm_dis": "🔗 كل ما يخص مادة تراكيب الحوسبة المتقطعة:\nhttps://drive.google.com/drive/folders/1r19VoO7Jn3th47Yvv02xqp_j_cRIANer?hl=ar",
     "cse_dm_alg": "🔗 كل ما يخص مادة الخوارزميات:\nhttps://drive.google.com/drive/folders/1HW8jr8rkYG1mCTu5Hw7V9bu6XrlMLj1K?hl=ar",
