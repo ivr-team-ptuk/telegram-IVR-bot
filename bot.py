@@ -607,7 +607,7 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 [InlineKeyboardButton("أنظمة الحماية", callback_data=f"{data}_pro"), InlineKeyboardButton("إلكترونيات متقدمة", callback_data=f"{data}_adv")],
                 [InlineKeyboardButton("معالجة الإشارات الرقمية", callback_data=f"{data}_dsp")],
                 [InlineKeyboardButton("تكنولوجيا الطاقة المتجددة", callback_data=f"{data}_ren")],
-                [InlineKeyboardButton("برمجة الشبكات", callback_data=f"{data}_net"), InlineKeyboardButton("التحكم الرقمي", callback_data=f"{data}_dgc")],
+                [InlineKeyboardButton("برمجة الشبكات", callback_data=f"{data}_net"), InlineKeyboardButton("التحكم الرقمي", callback_data=f"{data}_dig")],
                 [InlineKeyboardButton("نظرية المعلومات والترميز(كودينج)", callback_data=f"{data}_cod")],
                 [InlineKeyboardButton("صوتيات وموجات كهرومغناطيسية", callback_data=f"{data}_emw")],
                 [InlineKeyboardButton("روبوتات", callback_data=f"{data}_rob"), InlineKeyboardButton("تعلم الآلة", callback_data=f"{data}_ml")],
