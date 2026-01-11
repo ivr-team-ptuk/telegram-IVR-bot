@@ -874,36 +874,80 @@ async def note_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("✍️ أرسل الملاحظة الآن:")
 
 
-async def handle_note_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if context.user_data.get("waiting_for_note"):
-        user = update.effective_user
-        note_text = update.message.text
-        username_text = f"@{user.username}" if user.username else "—"
-        full_message = (
-            "📩 ملاحظة جديدة\n\n"
-            f"📝 النص:\n{note_text}\n\n"
-            "──────────────\n"
-            f"👤 الاسم: {user.full_name}\n"
-            f"🆔 Telegram ID: {user.id}\n"
-             f"🔗 Username: {username_text}"
-        )
+async def handle_note(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not context.user_data.get("waiting_for_note"):
+        return
 
+    user = update.effective_user
+    caption = (
+        "📩 ملاحظة جديدة\n\n"
+        f"👤 الاسم: {user.full_name}\n"
+        f"🆔 Telegram ID: {user.id}\n"
+        f"🔗 Username: @{user.username}" if user.username else "—"
+    )
+
+    sent_msg = None
+
+    # -------- TEXT --------
+    if update.message.text:
         sent_msg = await context.bot.send_message(
             chat_id=TARGET_CHAT_ID,
-            text=full_message
+            text=f"{caption}\n\n📝 النص:\n{update.message.text}"
         )
 
-        # حفظ بيانات الحذف
+    # -------- PHOTO --------
+    elif update.message.photo:
+        sent_msg = await context.bot.send_photo(
+            chat_id=TARGET_CHAT_ID,
+            photo=update.message.photo[-1].file_id,
+            caption=caption
+        )
+
+    # -------- DOCUMENT --------
+    elif update.message.document:
+        sent_msg = await context.bot.send_document(
+            chat_id=TARGET_CHAT_ID,
+            document=update.message.document.file_id,
+            caption=caption
+        )
+
+    # -------- VOICE --------
+    elif update.message.voice:
+        sent_msg = await context.bot.send_voice(
+            chat_id=TARGET_CHAT_ID,
+            voice=update.message.voice.file_id,
+            caption=caption
+        )
+
+    # -------- AUDIO --------
+    elif update.message.audio:
+        sent_msg = await context.bot.send_audio(
+            chat_id=TARGET_CHAT_ID,
+            audio=update.message.audio.file_id,
+            caption=caption
+        )
+
+    # -------- VIDEO --------
+    elif update.message.video:
+        sent_msg = await context.bot.send_video(
+            chat_id=TARGET_CHAT_ID,
+            video=update.message.video.file_id,
+            caption=caption
+        )
+
+    # حفظ بيانات الحذف (كما عندك)
+    if sent_msg:
         context.user_data["last_note_msg_id"] = sent_msg.message_id
         context.user_data["note_time"] = time.time()
 
         await update.message.reply_text(
-    "✅ تم إرسال الملاحظة.",
+            "✅ تم إرسال الملاحظة.",
             reply_markup=InlineKeyboardMarkup([
                 [InlineKeyboardButton("🗑 حذف الملاحظة", callback_data="delete_note")]
             ])
-)
-        context.user_data["waiting_for_note"] = False
+        )
+
+    context.user_data["waiting_for_note"] = False
 
 
 # =========================
@@ -919,7 +963,14 @@ def main():
     app.add_handler(CommandHandler("note", note_command))
 
     app.add_handler(CallbackQueryHandler(buttons))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_note_text))
+    app.add_handler(
+        MessageHandler(
+            (filters.TEXT | filters.PHOTO | filters.Document.ALL | filters.VOICE | filters.AUDIO | filters.VIDEO)
+            & ~filters.COMMAND,
+            handle_note
+        )
+)
+
 
     print("Bot is running...")
     app.run_polling()
