@@ -12,18 +12,19 @@ from telegram.ext import (
 TOKEN = os.getenv("BOT_TOKEN")
 
 ROADMAP_LINKS = {
-    "cse_rm_ai": "رابط مسار AI & Machine learning:\n🔗https://qr1.me-qr.com/mobile/pdf/4a687b37-8557-4f38-92ac-5f621fedd2c1",
-    "cse_rm_ds": "رابط مسار علم البيانات (Data Science):\n🔗https://qr1.me-qr.com/mobile/pdf/63e394f8-a86b-4e3e-9455-f2151b4f12b5",
+    "cse_rm_ai": "رابط مسار AI & Machine learning:\n🔗https://roadmap.sh/machine-learning",
+    "cse_rm_ds": "رابط مسار هندسة البيانات (Data Science):\n🔗https://roadmap.sh/data-engineer",
     "cse_rm_robotics": "رابط مسار الروبوتات:\n🔗https://qr1.me-qr.com/mobile/pdf/d1770eda-eaec-47c7-aefe-d6b04597d1d9",
-    "cse_rm_cyber": "رابط مسار الأمن السيبراني:\n🔗https://qr1.me-qr.com/mobile/pdf/f4e9fa7c-f7ec-49a4-9243-f47fe7c6fdfd",
-    "cse_rm_fullstack": "رابط مسار الفل ستاك(full stack developer):\n🔗https://qr1.me-qr.com/mobile/pdf/a51e8960-56fa-4612-a106-ad53ee7fa2a3",
-    "cse_rm_frontend": "رابط مسار الفرونت إند(frontend developer):\n🔗https://qr1.me-qr.com/mobile/pdf/cd5c2ece-0e69-4ddd-b084-a49708d41b42",
-    "cse_rm_backend": "رابط مسار الباك إند (backend developer):\n🔗https://qr1.me-qr.com/mobile/pdf/5f99a65a-fc13-4819-bd44-9168c187134b",
-    "cse_rm_mobile": "رابط مسار الأندرويد:\n🔗https://qr1.me-qr.com/mobile/pdf/994f5141-2fd1-462a-8892-10d0982ed45b\n\nرابط مسار IOS:\n🔗https://qr1.me-qr.com/mobile/pdf/a53e5055-04e7-401d-ae16-5ee0809503d2",
-    "cse_rm_uiux": "رابط مسار تصميم واجهة المستخدم (UI/UX designer):\n🔗https://qr1.me-qr.com/mobile/pdf/3698c9fa-53a8-4284-9ce7-d2052847bc8a",
-    "cse_rm_qa": "رابط مسار ضمان الجودة (QA Engineer):\n🔗https://qr1.me-qr.com/mobile/pdf/79c31563-de01-4d08-a618-92cad8d4d535",
+    "cse_rm_cyber": "رابط مسار الأمن السيبراني:\n🔗https://roadmap.sh/cyber-security",
+    "cse_rm_fullstack": "رابط مسار الفل ستاك(full stack developer):\n🔗https://roadmap.sh/full-stack",
+    "cse_rm_frontend": "رابط مسار الفرونت إند(frontend developer):\n🔗https://roadmap.sh/frontend",
+    "cse_rm_backend": "رابط مسار الباك إند (backend developer):\n🔗https://roadmap.sh/backend",
+    "cse_rm_mobile": "رابط مسار الأندرويد:\n🔗https://roadmap.sh/android\n\nرابط مسار iOS:\n🔗https://roadmap.sh/ios",
+    "cse_rm_uiux": "رابط مسار تصميم واجهة المستخدم (UI/UX designer):\n🔗https://roadmap.sh/ux-design",
+    "cse_rm_qa": "رابط مسار ضمان الجودة (QA Engineer):\n🔗https://roadmap.sh/qa",
     "cse_rm_lowlevel": "رابط مسار اللغات منخفضة المستوى (LL Programming):\n🔗https://qr1.me-qr.com/mobile/pdf/42137ab5-0755-4824-9f23-707f8f2e3df0",
-    "cse_rm_game": "رابط مسار تطوير الألعاب (Game Developer):\n🔗https://qr1.me-qr.com/mobile/pdf/3f97d69d-378b-44a2-b8b5-662263da891c",
+    "cse_rm_game": "رابط مسار تطوير الألعاب (Game Developer):\n🔗https://roadmap.sh/game-developer",
+    "cse_rm_more" : "رابط لمسارات أخرى (Game Developer):\n🔗https://roadmap.sh"
 }
 
 SUBJECT_LINKS = { 
@@ -719,13 +720,14 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # ---- Roadmaps ----
     elif data == "cse_roadmaps":
         keyboard = [
-            [InlineKeyboardButton("🤖 AI & Machine Learning", callback_data="cse_rm_ai")],
+           [InlineKeyboardButton("🤖 AI & Machine Learning", callback_data="cse_rm_ai")],
             [InlineKeyboardButton("📊 Data Science", callback_data="cse_rm_ds"), InlineKeyboardButton("🤖 Robotics", callback_data="cse_rm_robotics")],
             [InlineKeyboardButton("🔐 Cybersecurity", callback_data="cse_rm_cyber"), InlineKeyboardButton("🌐 Full Stack Developer", callback_data="cse_rm_fullstack")],
             [InlineKeyboardButton("🎨 Frontend", callback_data="cse_rm_frontend"), InlineKeyboardButton("🧠 Backend", callback_data="cse_rm_backend")],
             [InlineKeyboardButton("📱 Mobile Application", callback_data="cse_rm_mobile"), InlineKeyboardButton("🖌 UI / UX", callback_data="cse_rm_uiux")],
             [InlineKeyboardButton("🧪 QA", callback_data="cse_rm_qa"), InlineKeyboardButton("🎮 Game Developer", callback_data="cse_rm_game")],
             [InlineKeyboardButton("⚙ Low Level Programming", callback_data="cse_rm_lowlevel")],
+            [InlineKeyboardButton("more tracks roadmaps", callback_data="cse_rm_more")],
             [InlineKeyboardButton("🔙 رجوع", callback_data="cse"), InlineKeyboardButton("🏠 القائمة الرئيسية", callback_data="back_main")]
         ]
 
