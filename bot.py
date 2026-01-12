@@ -376,7 +376,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "/inst\n\n"
         "💡 لأي ملاحظات أو اقتراحات استخدم الأمر:\n"
         "/note\n\n"
-        "عن الجمعية، وروابط خارجية:"
+        "عن الجمعية، وروابط خارجية:\n"
         "/about\n\n"
         "👇 اختر من القائمة:"
     )
@@ -753,7 +753,7 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # ---- Roadmaps ----
     elif data == "cse_roadmaps":
         keyboard = [
-            [InlineKeyboardButton("🤖 AI & Machine Learning", callback_data="cse_rm_ai")],
+            [InlineKeyboardButton("🤖 AI & Machine Learning", url = "https://roadmap.sh/machine-learning")],
             [InlineKeyboardButton("📊 Data Science", callback_data="cse_rm_ds"), InlineKeyboardButton("🤖 Robotics", callback_data="cse_rm_robotics")],
             [InlineKeyboardButton("🔐 Cybersecurity", callback_data="cse_rm_cyber"), InlineKeyboardButton("🌐 Full Stack Developer", callback_data="cse_rm_fullstack")],
             [InlineKeyboardButton("🎨 Frontend", callback_data="cse_rm_frontend"), InlineKeyboardButton("🧠 Backend", callback_data="cse_rm_backend")],
@@ -866,16 +866,20 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # ---- Back to main ----
     elif data == "back_main":
         await query.edit_message_text(
-            text="👋 أهلاً بك في بوت الهندسة الجامعية\n\n"
-            "📌 **طريقة استخدام البوت:**\n"
-            "• البوت يعمل بالكامل عبر الأزرار.\n"
-            "• اختر تخصصك من القائمة الرئيسية.\n"
-            "• ادخل إلى قسم المواد ثم اختر نوع المادة.\n"
-            "• داخل كل مادة ستجد التلاخيص، الشروحات، الكتب، الامتحانات وغيرها.\n"
-            "• يمكنك دائمًا الرجوع باستخدام زر (رجوع).\n\n"
-            "💡 لأي ملاحظات أو اقتراحات استخدم الأمر:\n"
-            "/note\n\n"
-            "👇 اختر من القائمة:",
+            text=  "👋 أهلاً بك في بوت الهندسة الجامعية\n\n"
+        "📌 **طريقة استخدام البوت:**\n"
+        "• البوت يعمل بالكامل عبر الأزرار.\n"
+        "• اختر تخصصك من القائمة الرئيسية.\n"
+        "• ادخل إلى قسم المواد ثم اختر نوع المادة.\n"
+        "• داخل كل مادة ستجد التلاخيص، الشروحات، الكتب، الامتحانات وغيرها.\n"
+        "• يمكنك دائمًا الرجوع باستخدام زر (رجوع).\n\n"
+        "تعليمات الاستخدام:\n"
+        "/inst\n\n"
+        "💡 لأي ملاحظات أو اقتراحات استخدم الأمر:\n"
+        "/note\n\n"
+        "عن الجمعية، وروابط خارجية:\n"
+        "/about\n\n"
+        "👇 اختر من القائمة:",
             reply_markup=main_menu_keyboard()
         )
     # ---- Remove the sent note ----
