@@ -200,8 +200,6 @@ SUBJECT_LINKS = {
     
     # هندسة الحاسوب – إجباري تخصص
     "cse_dm_cpp": "🔗 كل ما يخص مادة برمجة الحاسوب:\nhttps://drive.google.com/drive/folders/1dfB641lJ4aW7OCMhiXzb9CbHD57ScRKY?hl=ar",
-    "cse_dm_java": "🔗 كل ما يخص مادة البرمجة الكينونية:\nhttps://drive.google.com/drive/folders/16mlcz7332pqsXWDcVM45Ez9Hi8KE2DWN?hl=ar",
-    "cse_dm_ds": "🔗 كل ما يخص مادة تركيب البيانات:\nhttps://drive.google.com/drive/folders/1MU9nY5LtI6_qzvvlIsM8p_JE9-OgYi7Z?hl=ar",
     "cse_dm_dslab": "🔗 كل ما يخص مادة مختبر تركيب البيانات:\nhttps://drive.google.com/drive/folders/1eMTzUX_1TvhkoWctA64IsHP7nokKtTVa?hl=ar",
     "cse_dm_dis": "🔗 كل ما يخص مادة تراكيب الحوسبة المتقطعة:\nhttps://drive.google.com/drive/folders/1r19VoO7Jn3th47Yvv02xqp_j_cRIANer?hl=ar",
     "cse_dm_alg": "🔗 كل ما يخص مادة الخوارزميات:\nhttps://drive.google.com/drive/folders/1HW8jr8rkYG1mCTu5Hw7V9bu6XrlMLj1K?hl=ar",
@@ -391,6 +389,35 @@ async def inst(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "تنقّل بين التخصصات والمواد باستخدام الأزرار فقط."
     )
 
+async def about(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    about_text = (
+        "✳️ تعريف الجمعية\n\n"
+        "⬅️ (ضع النص التعريفي هنا كما تريد)"
+    )
+
+    keyboard = InlineKeyboardMarkup([
+        [InlineKeyboardButton("🌐 موقع الجمعية", url="https://ivr-team-ptuk.github.io/IVR-Library/?fbclid=IwY2xjawNymGFleHRuA2FlbQIxMABicmlkETFMSGl6T3c4cVpQbWpuS2p5AR68bIpdoxosS9jmgwshDFGnri5PuCaE2fCbAJGlUuTNpUB3xavM77oyuWXnpA_aem_zRZUN5noXRofmBzQFgpyLQ")],
+        [InlineKeyboardButton("🏛 منصة كلية الهندسة والتكنولوجيا IVR", url="https://www.facebook.com/groups/395354431026877/")],
+        [
+            InlineKeyboardButton("حساب الجمعية - فيسبوك", url="https://www.facebook.com/groups/395354431026877/user/100031851995367"),
+            InlineKeyboardButton("حساب الجمعية - إنستغرام", url="https://www.instagram.com/ivr_ptuk/")
+        ],
+        [InlineKeyboardButton("اللجنة العلمية - فيسبوك", url="https://www.facebook.com/groups/395354431026877/user/100046123754881")],
+        [
+            InlineKeyboardButton("اللجنة الثقافية – فيسبوك", url="https://www.facebook.com/groups/395354431026877/user/100092553221922/"),
+            InlineKeyboardButton("اللجنة الثقافية – إنستغرام", url="https://www.instagram.com/ivr.cultural/")
+        ],
+        [InlineKeyboardButton("▶️ قناة اليوتيوب", url="https://youtube.com/@ivr_channel?si=UPQeWn_mKz28jnZB")],
+        # [InlineKeyboardButton("🤝 انضم لنا", url="PUT_LINK_HERE")],
+        # [InlineKeyboardButton("📝 قدم مقترحاً", url="PUT_LINK_HERE")],
+        [InlineKeyboardButton("🏫 IVR NAJAH", url="https://www.facebook.com/groups/2416874278576851/")],
+        [InlineKeyboardButton("🏠 القائمة الرئيسية", callback_data="back_main")]
+    ])
+
+    await update.message.reply_text(
+        about_text,
+        reply_markup=keyboard
+    )
 
 # async def bots(update: Update, context: ContextTypes.DEFAULT_TYPE):
 #     await update.message.reply_text(
@@ -607,7 +634,7 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 [InlineKeyboardButton("أنظمة الحماية", callback_data=f"{data}_pro"), InlineKeyboardButton("إلكترونيات متقدمة", callback_data=f"{data}_adv")],
                 [InlineKeyboardButton("معالجة الإشارات الرقمية", callback_data=f"{data}_dsp")],
                 [InlineKeyboardButton("تكنولوجيا الطاقة المتجددة", callback_data=f"{data}_ren")],
-                [InlineKeyboardButton("برمجة الشبكات", callback_data=f"{data}_net"), InlineKeyboardButton("التحكم الرقمي", callback_data=f"{data}_dig")],
+                [InlineKeyboardButton("برمجة الشبكات", callback_data=f"{data}_net"), InlineKeyboardButton("التحكم الرقمي", callback_data=f"{data}_dgc")],
                 [InlineKeyboardButton("نظرية المعلومات والترميز(كودينج)", callback_data=f"{data}_cod")],
                 [InlineKeyboardButton("صوتيات وموجات كهرومغناطيسية", callback_data=f"{data}_emw")],
                 [InlineKeyboardButton("روبوتات", callback_data=f"{data}_rob"), InlineKeyboardButton("تعلم الآلة", callback_data=f"{data}_ml")],
@@ -722,14 +749,14 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # ---- Roadmaps ----
     elif data == "cse_roadmaps":
         keyboard = [
-           [InlineKeyboardButton("🤖 AI & Machine Learning", callback_data="cse_rm_ai")],
+            [InlineKeyboardButton("🤖 AI & Machine Learning", callback_data="cse_rm_ai")],
             [InlineKeyboardButton("📊 Data Science", callback_data="cse_rm_ds"), InlineKeyboardButton("🤖 Robotics", callback_data="cse_rm_robotics")],
             [InlineKeyboardButton("🔐 Cybersecurity", callback_data="cse_rm_cyber"), InlineKeyboardButton("🌐 Full Stack Developer", callback_data="cse_rm_fullstack")],
             [InlineKeyboardButton("🎨 Frontend", callback_data="cse_rm_frontend"), InlineKeyboardButton("🧠 Backend", callback_data="cse_rm_backend")],
             [InlineKeyboardButton("📱 Mobile Application", callback_data="cse_rm_mobile"), InlineKeyboardButton("🖌 UI / UX", callback_data="cse_rm_uiux")],
             [InlineKeyboardButton("🧪 QA", callback_data="cse_rm_qa"), InlineKeyboardButton("🎮 Game Developer", callback_data="cse_rm_game")],
             [InlineKeyboardButton("⚙ Low Level Programming", callback_data="cse_rm_lowlevel")],
-             [InlineKeyboardButton("⚡more tracks roadmaps⚡", callback_data="cse_rm_more")],
+            [InlineKeyboardButton("⚡more tracks roadmaps⚡", callback_data="cse_rm_more")],
             [InlineKeyboardButton("🔙 رجوع", callback_data="cse"), InlineKeyboardButton("🏠 القائمة الرئيسية", callback_data="back_main")]
         ]
 
@@ -878,80 +905,36 @@ async def note_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("✍️ أرسل الملاحظة الآن:")
 
 
-async def handle_note(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if not context.user_data.get("waiting_for_note"):
-        return
+async def handle_note_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if context.user_data.get("waiting_for_note"):
+        user = update.effective_user
+        note_text = update.message.text
+        username_text = f"@{user.username}" if user.username else "—"
+        full_message = (
+            "📩 ملاحظة جديدة\n\n"
+            f"📝 النص:\n{note_text}\n\n"
+            "──────────────\n"
+            f"👤 الاسم: {user.full_name}\n"
+            f"🆔 Telegram ID: {user.id}\n"
+             f"🔗 Username: {username_text}"
+        )
 
-    user = update.effective_user
-    caption = (
-        "📩 ملاحظة جديدة\n\n"
-        f"👤 الاسم: {user.full_name}\n"
-        f"🆔 Telegram ID: {user.id}\n"
-        f"🔗 Username: @{user.username}" if user.username else "—"
-    )
-
-    sent_msg = None
-
-    # -------- TEXT --------
-    if update.message.text:
         sent_msg = await context.bot.send_message(
             chat_id=TARGET_CHAT_ID,
-            text=f"{caption}\n\n📝 النص:\n{update.message.text}"
+            text=full_message
         )
 
-    # -------- PHOTO --------
-    elif update.message.photo:
-        sent_msg = await context.bot.send_photo(
-            chat_id=TARGET_CHAT_ID,
-            photo=update.message.photo[-1].file_id,
-            caption=caption
-        )
-
-    # -------- DOCUMENT --------
-    elif update.message.document:
-        sent_msg = await context.bot.send_document(
-            chat_id=TARGET_CHAT_ID,
-            document=update.message.document.file_id,
-            caption=caption
-        )
-
-    # -------- VOICE --------
-    elif update.message.voice:
-        sent_msg = await context.bot.send_voice(
-            chat_id=TARGET_CHAT_ID,
-            voice=update.message.voice.file_id,
-            caption=caption
-        )
-
-    # -------- AUDIO --------
-    elif update.message.audio:
-        sent_msg = await context.bot.send_audio(
-            chat_id=TARGET_CHAT_ID,
-            audio=update.message.audio.file_id,
-            caption=caption
-        )
-
-    # -------- VIDEO --------
-    elif update.message.video:
-        sent_msg = await context.bot.send_video(
-            chat_id=TARGET_CHAT_ID,
-            video=update.message.video.file_id,
-            caption=caption
-        )
-
-    # حفظ بيانات الحذف (كما عندك)
-    if sent_msg:
+        # حفظ بيانات الحذف
         context.user_data["last_note_msg_id"] = sent_msg.message_id
         context.user_data["note_time"] = time.time()
 
         await update.message.reply_text(
-            "✅ تم إرسال الملاحظة.",
+    "✅ تم إرسال الملاحظة.",
             reply_markup=InlineKeyboardMarkup([
                 [InlineKeyboardButton("🗑 حذف الملاحظة", callback_data="delete_note")]
             ])
-        )
-
-    context.user_data["waiting_for_note"] = False
+)
+        context.user_data["waiting_for_note"] = False
 
 
 # =========================
@@ -965,16 +948,10 @@ def main():
     app.add_handler(CommandHandler("inst", inst))
     # app.add_handler(CommandHandler("bots", bots))
     app.add_handler(CommandHandler("note", note_command))
+    app.add_handler(CommandHandler("about", about))
 
     app.add_handler(CallbackQueryHandler(buttons))
-    app.add_handler(
-        MessageHandler(
-            (filters.TEXT | filters.PHOTO | filters.Document.ALL | filters.VOICE | filters.AUDIO | filters.VIDEO)
-            & ~filters.COMMAND,
-            handle_note
-        )
-)
-
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_note_text))
 
     print("Bot is running...")
     app.run_polling()
