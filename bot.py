@@ -11,22 +11,6 @@ from telegram.ext import (
 
 TOKEN = os.getenv("BOT_TOKEN")
 
-ROADMAP_LINKS = {
-    "cse_rm_ai": "رابط مسار AI & Machine learning:\n🔗https://roadmap.sh/machine-learning",
-    "cse_rm_ds": "رابط مسار هندسة البيانات (Data Science):\n🔗https://roadmap.sh/data-engineer",
-    "cse_rm_robotics": "رابط مسار الروبوتات:\n🔗https://qr1.me-qr.com/mobile/pdf/d1770eda-eaec-47c7-aefe-d6b04597d1d9",
-    "cse_rm_cyber": "رابط مسار الأمن السيبراني:\n🔗https://roadmap.sh/cyber-security",
-    "cse_rm_fullstack": "رابط مسار الفل ستاك(full stack developer):\n🔗https://roadmap.sh/full-stack",
-    "cse_rm_frontend": "رابط مسار الفرونت إند(frontend developer):\n🔗https://roadmap.sh/frontend",
-    "cse_rm_backend": "رابط مسار الباك إند (backend developer):\n🔗https://roadmap.sh/backend",
-    "cse_rm_mobile": "رابط مسار الأندرويد:\n🔗https://roadmap.sh/android\n\nرابط مسار iOS:\n🔗https://roadmap.sh/ios",
-    "cse_rm_uiux": "رابط مسار تصميم واجهة المستخدم (UI/UX designer):\n🔗https://roadmap.sh/ux-design",
-    "cse_rm_qa": "رابط مسار ضمان الجودة (QA Engineer):\n🔗https://roadmap.sh/qa",
-    "cse_rm_lowlevel": "رابط مسار اللغات منخفضة المستوى (LL Programming):\n🔗https://qr1.me-qr.com/mobile/pdf/42137ab5-0755-4824-9f23-707f8f2e3df0",
-    "cse_rm_game": "رابط مسار تطوير الألعاب (Game Developer):\n🔗https://roadmap.sh/game-developer",
-    "cse_rm_more" : "رابط لمسارات أخرى (Game Developer):\n🔗https://roadmap.sh"
-}
-
 SUBJECT_LINKS = { 
 
     # هندسة البناء – إجباري تخصص
@@ -59,7 +43,7 @@ SUBJECT_LINKS = {
     "ce_dm_mng": "🔗 كل ما يخص مادة الإدارة الهندسية وضبط الجودة:\nhttps://drive.google.com/drive/folders/1CnhE5_nTugvMnTGc3b61NPZ8JLwN_cIx",
     "ce_dm_struc1": "🔗 كل ما يخص مادة تحليل إنشاءات 1:\nhttps://drive.google.com/drive/folders/1j6um544BSHP0g-iePoxlLaUiMwNC3HOw",
     "ce_dm_struc2": "🔗 كل ما يخص مادة تحليل إنشاءات 2:\nhttps://drive.google.com/drive/folders/1F7yclgmoqsaX5RiCV3p3P-Y4J8AddTv1",
-    
+
     # هندسة الميكانيك – إجباري تخصص
     "me_dm_cir1": "🔗 كل ما يخص مادة دوائر كهربائية 1:\nhttps://drive.google.com/drive/folders/1zWr2kk4jznsqB2_VyDwUrlXAomX2ppJy",
     "me_dm_lab_cir1": "🔗 كل ما يخص مادة مختبر دوائر كهربائية 1:\nhttps://drive.google.com/drive/folders/1LOn0kXufvISSPDu3X7BiMSY3u5xnppWh?hl=ar",
@@ -169,7 +153,7 @@ SUBJECT_LINKS = {
     "ee_dm_sca": "🔗 كل ما يخص مادة أنظمة الإشراف:\nhttps://drive.google.com/drive/folders/1DBapVYC9KQGxuT3q0gNzd7c9fnCPUjZl",
     "ee_dm_thm": "🔗 كل ما يخص مادة الديناميكا الحرارية:\nhttps://drive.google.com/drive/folders/1bN_YHgvFio7VvALWn8bXUa1_tnReiY9T",
     "ee_dm_sen": "🔗 كل ما يخص مادة المجسات ومحولات الطاقة:\nhttps://drive.google.com/drive/folders/1SEwhdFIG4jV-uISW0IB7BzgKjScHogwm",
-    
+
     # هندسة الاتصالات – إجباري تخصص
     "te_dm_mic": "🔗 كل ما يخص مادة متحكمات دقيقة:\nhttps://drive.google.com/drive/folders/15jlZjQKiTjJgMLO28f_h4u79IE5XYisr",
     "te_dm_mcl": "🔗 كل ما يخص مادة مختبر متحكمات دقيقة:\nhttps://drive.google.com/drive/folders/1vdD5m2AxEr5W3QtIWu42SBdPf95wUND_?hl=ar",
@@ -197,7 +181,7 @@ SUBJECT_LINKS = {
     "te_dm_spc": "🔗 كل ما يخص مادة المجسات ومحولات الطاقة:\nhttps://drive.google.com/drive/folders/1SEwhdFIG4jV-uISW0IB7BzgKjScHogwm",
     "te_dm_num": "🔗 كل ما يخص مادة تحليل عددي:\nhttps://drive.google.com/drive/folders/1w59DQ7uRTLqCrKpJUE4-CLxTSsrESBOj",
 
-    
+
     # هندسة الحاسوب – إجباري تخصص
     "cse_dm_cpp": "🔗 كل ما يخص مادة برمجة الحاسوب:\nhttps://drive.google.com/drive/folders/1dfB641lJ4aW7OCMhiXzb9CbHD57ScRKY?hl=ar",
     "cse_dm_dslab": "🔗 كل ما يخص مادة مختبر تركيب البيانات:\nhttps://drive.google.com/drive/folders/1eMTzUX_1TvhkoWctA64IsHP7nokKtTVa?hl=ar",
@@ -237,7 +221,7 @@ SUBJECT_LINKS = {
     "ce_do_met2": "🔗 كل ما يخص مادة منشآت معدنية 2:\nhttps://drive.google.com/drive/folders/1GdvnmWUXeYUpzLBty0lqOJkUMJuVkSP6",
     "ce_do_conc3": "🔗 كل ما يخص مادة خرسانة 3:\nhttps://drive.google.com/drive/folders/1H7-AHGn7xrFhN2bIUoadzEr0aUD6VEq5",
     "ce_do_envimp": "🔗 كل ما يخص مادة تقييم الأثر البيئي:\nhttps://drive.google.com/drive/folders/10_qN-SPXs1LvtaabsBMGQAARc2h9wV8g",
-    
+
     # هندسة الميكانيك – اختياري تخصص
     "me_do_dva": "🔗 كل ما يخص مادة ديناميكا واهتزازات المركبات:\nhttps://drive.google.com/drive/folders/1K8QD7U9duW_VY1XS9YxPjBucSPLqAYLd?hl=ar",
     "me_do_ldv": "🔗 كل ما يخص مادة مختبر ديناميكا واهتزازات المركبات:\nhttps://drive.google.com/drive/folders/1MfkQKhqoOTekK-MZNhhZIZtvezQAB5UY",
@@ -245,7 +229,7 @@ SUBJECT_LINKS = {
     "me_do_dsp": "🔗 كل ما يخص مادة معالجة الإشارات الرقمية DSP:\nhttps://drive.google.com/drive/folders/1uXoNhnC_6O_Z-0EdQxZ4YUXNd1q74YUd",
     "me_do_sen": "🔗 كل ما يخص مادة المجسات ومحولات الطاقة Sensors:\nhttps://drive.google.com/drive/folders/1SEwhdFIG4jV-uISW0IB7BzgKjScHogwm",
     "me_do_ve": "🔗 كل ما يخص مادة إلكترونيات وكهرباء السيارات:\nhttps://drive.google.com/drive/folders/1Ce-4LEeRYkrkMWQQqLeFZKdAAXD0y52Q?hl=ar",
-    
+
     # هندسة الكهرباء – اختياري تخصص
     "ee_do_adv": "🔗 كل ما يخص مادة إلكترونيات متقدمة:\nhttps://drive.google.com/drive/folders/1WJnZ2Jj9LmTrLo5alBkKXpHREBm9gwqc",
     "ee_do_pro": "🔗 كل ما يخص مادة أنظمة الحماية:\nhttps://drive.google.com/drive/folders/1tdQgHmwxD75frzSgs0gZL2i6Ev0ghKIR",
@@ -258,14 +242,14 @@ SUBJECT_LINKS = {
     "ee_do_emw": "🔗 كل ما يخص مادة صوتيات وموجات كهرومغناطيسية:\nhttps://drive.google.com/drive/folders/1v7AWzoyTWJ5CADo-68oNMtp4hbXaCSfC",
     "ee_do_rob": "🔗 كل ما يخص مادة روبوتات:\nhttps://drive.google.com/drive/folders/1xK1hqQs9vsDM7jbOrijhdHLJXk-IE9_2?hl=ar",
     "ee_do_car": "🔗 كل ما يخص مادة إلكترونيات وكهرباء السيارات:\nhttps://drive.google.com/drive/folders/1Ce-4LEeRYkrkMWQQqLeFZKdAAXD0y52Q?hl=ar",
-    
+
     # هندسة الاتصالات – اختياري تخصص
     "te_do_web": "🔗 كل ما يخص مادة تقنيات الانترنت وتطبيقات الويب:\nhttps://drive.google.com/drive/folders/1wz3InGxK3ZkUzeKVgACEB7k_lAP8Fyaa?hl=ar",
     "te_do_oop": "🔗 كل ما يخص مادة البرمجة الكينونية:\nhttps://drive.google.com/drive/folders/16mlcz7332pqsXWDcVM45Ez9Hi8KE2DWN?hl=ar",
     "te_do_db": "🔗 كل ما يخص مادة تركيب البيانات:\nhttps://drive.google.com/drive/folders/1MU9nY5LtI6_qzvvlIsM8p_JE9-OgYi7Z?hl=ar",
     "te_do_swe": "🔗 كل ما يخص مادة هندسة البرمجيات:\nhttps://drive.google.com/drive/folders/1I6Qon3_jvBG4KoGtmwQ1qBabzuA1ztvW?hl=ar",
     "te_do_cod": "🔗 كل ما يخص مادة نظرية المعلومات والترميز (كودينج):\nhttps://drive.google.com/drive/folders/1DPEIqsLX9Cq3kwE7I8wdk43oCT1tzvO4",
-    
+
     # هندسة الحاسوب – اختياري تخصص
     "cse_do_adb": "🔗 كل ما يخص مادة مواضيع متقدمة في قواعد البيانات:\nhttps://drive.google.com/drive/folders/1yz8LMm1E4ErufxXHsA2ZBXw29cThH8wN?usp=drive_link",
     "cse_do_fib": "🔗 كل ما يخص مادة أنظمة الألياف الضوئية:\nhttps://drive.google.com/drive/folders/13IlmE6sMct-gAdZxoTmhlZJxNJGGBjXN",
@@ -442,7 +426,7 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     data = query.data
 
     # ---- Main specializations ----
-    
+
     if data == "shared_subjects":
         await query.edit_message_text(
             text="📚 المواد المشتركة بين جميع التخصصات:",
@@ -491,7 +475,7 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
             ])
         )
 
-    
+
     elif data in ["cse", "me", "ee", "te", "ce"]:
         titles = {
             "cse": "💻 هندسة الحاسوب",
@@ -557,7 +541,7 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
                  InlineKeyboardButton("🏠 القائمة الرئيسية", callback_data="back_main")]
             ])
         )
-        
+
     elif data.endswith(("te_dm")):
         await query.edit_message_text(
             text="اتصالات - إجباري تخصص:",
@@ -593,7 +577,7 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
                  InlineKeyboardButton("🏠 القائمة الرئيسية", callback_data="back_main")]
             ])
         )
-        
+
     elif data.endswith(("ee_dm")):
         await query.edit_message_text(
             text="كهرباء - إجباري تخصص:",
@@ -647,7 +631,7 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
                  InlineKeyboardButton("🏠 القائمة الرئيسية", callback_data="back_main")]
             ])
         )
-        
+
     elif data.endswith(("me_dm")):
         await query.edit_message_text(
             text="ميكانيك وميكاترونيكس - إجباري تخصص:",
@@ -690,7 +674,7 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
                  InlineKeyboardButton("🏠 القائمة الرئيسية", callback_data="back_main")]
             ])
         )
-    
+
     elif data.endswith(("me_do")):
         await query.edit_message_text(
             text="ميكانيك وميكاترونيكس - اختياري تخصص:",
@@ -704,7 +688,7 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 [InlineKeyboardButton("🔙 رجوع", callback_data="me"), InlineKeyboardButton("🏠 القائمة الرئيسية", callback_data="back_main")]
             ])
         )
-    
+
     elif data.endswith(("ce_dm")):
         await query.edit_message_text(
             text="بناء ومدني - إجباري تخصص:",
@@ -731,7 +715,7 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 [InlineKeyboardButton("🔙 رجوع", callback_data="ce"), InlineKeyboardButton("🏠 القائمة الرئيسية", callback_data="back_main")]
             ])
         )
-    
+
     elif data.endswith(("ce_do")):
         await query.edit_message_text(
             text="بناء ومدني - اختياري تخصص:",
@@ -744,7 +728,7 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 [InlineKeyboardButton("🔙 رجوع", callback_data="ce"), InlineKeyboardButton("🏠 القائمة الرئيسية", callback_data="back_main")]
             ])
         )
-        
+
     elif data in SUBJECT_LINKS:
         await query.message.reply_text(
             f"{SUBJECT_LINKS[data]}"
@@ -756,9 +740,9 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
             [InlineKeyboardButton("🤖 AI & Machine Learning", url = "https://roadmap.sh/machine-learning")],
             [InlineKeyboardButton("📊 Data Science", url = "https://roadmap.sh/data-engineer"), InlineKeyboardButton("🤖 Robotics", url = "https://qr1.me-qr.com/mobile/pdf/d1770eda-eaec-47c7-aefe-d6b04597d1d9")],
             [InlineKeyboardButton("🔐 Cybersecurity", url = "https://roadmap.sh/cyber-security"), InlineKeyboardButton("🌐 Full Stack Developer", url = "https://roadmap.sh/full-stack")],
-            [InlineKeyboardButton("🎨 Frontend", url = ""), InlineKeyboardButton("🧠 Backend", url = "https://roadmap.sh/backend")],
-            [InlineKeyboardButton("📱 iOS Dev", url = "https://roadmap.sh/ios), InlineKeyboardButton("📱 Android Dev", url = "https://roadmap.sh/android"), InlineKeyboardButton("🖌 UX", url = "https://roadmap.sh/ux-design")],
-            [InlineKeyboardButton("🧪 QA", url = "https://roadmap.sh/data-engineer"), InlineKeyboardButton("🎮 Game Developer", url = "https://roadmap.sh/game-developer")],
+            [InlineKeyboardButton("🎨 Frontend", url = "https://roadmap.sh/frontend"), InlineKeyboardButton("🧠 Backend", url = "https://roadmap.sh/backend")],
+            [InlineKeyboardButton("📱 iOS Dev", url = "https://roadmap.sh/ios"), InlineKeyboardButton("🧪 QA", url = "https://roadmap.sh/qa"), InlineKeyboardButton("🖌 UX", url = "https://roadmap.sh/ux-design")],
+            [InlineKeyboardButton("📱 Android Dev", url = "https://roadmap.sh/android"), InlineKeyboardButton("🎮 Game Developer", url = "https://roadmap.sh/game-developer")],
             [InlineKeyboardButton("⚙ Low Level Programming", url = "https://qr1.me-qr.com/mobile/pdf/42137ab5-0755-4824-9f23-707f8f2e3df0")],
             [InlineKeyboardButton("⚡more tracks roadmaps⚡", url = "https://roadmap.sh")],
             [InlineKeyboardButton("🔙 رجوع", callback_data="cse"), InlineKeyboardButton("🏠 القائمة الرئيسية", callback_data="back_main")]
