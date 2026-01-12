@@ -754,16 +754,15 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif data == "cse_roadmaps":
         keyboard = [
             [InlineKeyboardButton("🤖 AI & Machine Learning", url = "https://roadmap.sh/machine-learning")],
-            [InlineKeyboardButton("📊 Data Science", callback_data="cse_rm_ds"), InlineKeyboardButton("🤖 Robotics", callback_data="cse_rm_robotics")],
-            [InlineKeyboardButton("🔐 Cybersecurity", callback_data="cse_rm_cyber"), InlineKeyboardButton("🌐 Full Stack Developer", callback_data="cse_rm_fullstack")],
-            [InlineKeyboardButton("🎨 Frontend", callback_data="cse_rm_frontend"), InlineKeyboardButton("🧠 Backend", callback_data="cse_rm_backend")],
-            [InlineKeyboardButton("📱 Mobile Application", callback_data="cse_rm_mobile"), InlineKeyboardButton("🖌 UI / UX", callback_data="cse_rm_uiux")],
-            [InlineKeyboardButton("🧪 QA", callback_data="cse_rm_qa"), InlineKeyboardButton("🎮 Game Developer", callback_data="cse_rm_game")],
-            [InlineKeyboardButton("⚙ Low Level Programming", callback_data="cse_rm_lowlevel")],
-            [InlineKeyboardButton("⚡more tracks roadmaps⚡", callback_data="cse_rm_more")],
+            [InlineKeyboardButton("📊 Data Science", url = "https://roadmap.sh/data-engineer"), InlineKeyboardButton("🤖 Robotics", url = "https://qr1.me-qr.com/mobile/pdf/d1770eda-eaec-47c7-aefe-d6b04597d1d9")],
+            [InlineKeyboardButton("🔐 Cybersecurity", url = "https://roadmap.sh/cyber-security"), InlineKeyboardButton("🌐 Full Stack Developer", url = "https://roadmap.sh/full-stack")],
+            [InlineKeyboardButton("🎨 Frontend", url = ""), InlineKeyboardButton("🧠 Backend", url = "https://roadmap.sh/backend")],
+            [InlineKeyboardButton("📱 iOS Dev", url = "https://roadmap.sh/ios), InlineKeyboardButton("📱 Android Dev", url = "https://roadmap.sh/android"), InlineKeyboardButton("🖌 UX", url = "https://roadmap.sh/ux-design")],
+            [InlineKeyboardButton("🧪 QA", url = "https://roadmap.sh/data-engineer"), InlineKeyboardButton("🎮 Game Developer", url = "https://roadmap.sh/game-developer")],
+            [InlineKeyboardButton("⚙ Low Level Programming", url = "https://qr1.me-qr.com/mobile/pdf/42137ab5-0755-4824-9f23-707f8f2e3df0")],
+            [InlineKeyboardButton("⚡more tracks roadmaps⚡", url = "https://roadmap.sh")],
             [InlineKeyboardButton("🔙 رجوع", callback_data="cse"), InlineKeyboardButton("🏠 القائمة الرئيسية", callback_data="back_main")]
         ]
-
         await query.edit_message_text(
             text="🗺 Roadmaps – هندسة الحاسوب",
             reply_markup=InlineKeyboardMarkup(keyboard)
