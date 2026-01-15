@@ -11,6 +11,29 @@ from telegram.ext import (
 
 TOKEN = os.getenv("BOT_TOKEN")
 
+GRAD_PROJECTS = {
+    
+    #projects
+        "te_grad_projects": "https://drive.google.com/drive/folders/1pW26jE-iZuMGFilp76ls9hOwin4f4V-P",
+        "cse_grad_projects": "https://drive.google.com/drive/folders/1QCyDTwu8a2-YSQ8hOZBGTPgd_3LSYhhH",
+        "mee_grad_projects": "https://drive.google.com/drive/folders/1lPYPF9EGaZk6Dd3k1wCir1MBFcvOpITT",
+        "ce_grad_projects": "https://drive.google.com/drive/folders/1NTGTUa6gKje0IdQgj199bLTzCezEEnhV",
+        "gee_grad_projects": "https://drive.google.com/drive/folders/1lXsh_RdiVR1mhw48uPn3R1K32USmGXS2",
+        "me_grad_projects": "https://drive.google.com/drive/folders/1kg91mpS2gq2V1CvxKtAIjH86ovkmElQ2",
+        "cve_grad_projects": "https://drive.google.com/drive/folders/1ZArELcmBMtltY0mOCQ92Fv7qq4bjqJ-m",
+        "ee_grad_projects": "https://drive.google.com/drive/folders/11AxQeaKdYlmCmAQV08FfILaf5EjaudRo",
+    
+    #proposals
+        "te_grad_proposals": "https://drive.google.com/drive/folders/1DpI50ghBKMXMTdNG1j4YazJfhgboVfrZ",
+        "cse_grad_proposals": "https://drive.google.com/drive/folders/1OIyr8WlnxMXseMCpQ5sRVntukgNNKEl_?usp=drive_link",
+        "mee_grad_proposals": "https://drive.google.com/drive/folders/1W-j-LnJDMDX5VD6IFtJ-s0sPBCtnaNSe?usp=sharing",
+        "ce_grad_proposals": "https://drive.google.com/drive/folders/1vTsZt4ggme5-EBhPgz8ch4GUqoxV9FXo?usp=sharing",
+        "gee_grad_proposals": "https://drive.google.com/drive/folders/1Qyw-UnvltPp90vMJI2c1SLE_Q3duzxQk?usp=sharing",
+        "me_grad_proposals": "https://drive.google.com/drive/folders/1mCRkDn2-Cne26Acr2hyN4D1hTPtMSrg3?usp=sharing",
+        "cve_grad_proposals": "https://drive.google.com/drive/folders/1FE95g3u5Qh2b-W_Mrh0QBjMIXaC86mcT?usp=sharing",
+        "ee_grad_proposals": "https://drive.google.com/drive/folders/1IwDgSRMe6Ok2DEFbt0LKlR4HNLIc_l1R?usp=sharing"
+}
+
 # =========================
 # Helpers
 # =========================
@@ -22,7 +45,7 @@ def main_menu_keyboard():
             InlineKeyboardButton("📡 هندسة الاتصالات", callback_data="te")
         ],
         [
-            InlineKeyboardButton("⚙️ هندسة الميكانيك", callback_data="me"), 
+            InlineKeyboardButton("🛠️ هندسة الميكانيك", callback_data="me"), 
             InlineKeyboardButton("⚙️ هندسة الميكاترونيكس", callback_data="me")
         ],
         [
@@ -30,14 +53,15 @@ def main_menu_keyboard():
         ],
         [
             InlineKeyboardButton("🏗 هندسة البناء", callback_data="ce"), 
-            InlineKeyboardButton("🏗 الهندسة المدنية", callback_data="ce")
+            InlineKeyboardButton("🏢 الهندسة المدنية", callback_data="ce")
         ],
         [
-            InlineKeyboardButton("📚 مواد مشتركة", callback_data="shared_subjects")
+            InlineKeyboardButton("📚 مشاريع تخرج", callback_data="grad")
         ],
         [
-            InlineKeyboardButton("❓ أسئلة شائعة", callback_data="faq")
-        ]
+            InlineKeyboardButton("❓ أسئلة شائعة", callback_data="faq"),
+            InlineKeyboardButton("شارك البوت", switch_inline_query="\nهذا هو بوت مساعدة الطلاب المطور بواسطة جمعية (IVR) الهندسية\n\nرابط البوت:\nhttps://t.me/IVR_Library_bot")
+        ],
     ])
 
 
@@ -48,7 +72,7 @@ def specialization_menu(spec_code: str):
             InlineKeyboardButton("📗 اختياري تخصص", callback_data=f"{spec_code}_do")
         ],
         [
-            InlineKeyboardButton("📚 مواد مشتركة", callback_data="shared_subjects")
+            InlineKeyboardButton("📚 مواد مشتركة", callback_data=f"{spec_code}_shared_subjects")
         ],
         [
             InlineKeyboardButton("Roadmaps", callback_data=f"{spec_code}_roadmaps"), 
@@ -63,19 +87,33 @@ def specialization_menu(spec_code: str):
 #         [InlineKeyboardButton("🔙 رجوع", callback_data=spec_code), InlineKeyboardButton("🏠 القائمة الرئيسية", callback_data="back_main")]
 #     ])
 
-def shared_subjects_menu():
+def shared_subjects_menu(spec_code: str):
     return InlineKeyboardMarkup([
         [
-            InlineKeyboardButton("📘 إجباري الجامعة", callback_data="shared_um")
+            InlineKeyboardButton("📘 إجباري الجامعة", callback_data=f"{spec_code}_shared_um")
         ],
         [
-            InlineKeyboardButton("📗 إجباري الكلية", callback_data="shared_cm")
+            InlineKeyboardButton("📗 إجباري الكلية", callback_data=f"{spec_code}_shared_cm")
         ],
         [
-            InlineKeyboardButton("📙 اختياري الجامعة", callback_data="shared_uo")
+            InlineKeyboardButton("📙 اختياري الجامعة", callback_data=f"{spec_code}_shared_uo")
         ],
         [
-            InlineKeyboardButton("🔙 رجوع", callback_data="back_main")
+            InlineKeyboardButton("🔙 رجوع", callback_data=spec_code.split("_")[0]),
+            InlineKeyboardButton("🏠 القائمة الرئيسية", callback_data="back_main")
+        ]
+    ])
+def proj_probo_menu(spec_code: str):
+    return InlineKeyboardMarkup([
+        [
+            InlineKeyboardButton("📂 مشاريع التخرج", url=GRAD_PROJECTS[f"{spec_code}_projects"])
+        ],
+        [
+            InlineKeyboardButton("📝 مقدمات مشاريع التخرج", url=GRAD_PROJECTS[f"{spec_code}_proposals"])
+        ],
+        [
+            InlineKeyboardButton("🔙 رجوع", callback_data="grad"),
+            InlineKeyboardButton("🏠 القائمة الرئيسية", callback_data="back_main")
         ]
     ])
 
@@ -85,19 +123,17 @@ def shared_subjects_menu():
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     intro_text = (
-        "👋 أهلاً بك في بوت الهندسة الجامعية\n\n"
-        "📌 **طريقة استخدام البوت:**\n"
-        "• البوت يعمل بالكامل عبر الأزرار.\n"
-        "• اختر تخصصك من القائمة الرئيسية.\n"
-        "• ادخل إلى قسم المواد ثم اختر نوع المادة.\n"
-        "• داخل كل مادة ستجد التلاخيص، الشروحات، الكتب، الامتحانات وغيرها.\n"
+        "👋 أهلاً بك في بوت IVR copilot من تطوير جمعية IVR الهندسية\n\n"
+        "📌 طريقة استخدام البوت: \n\n"
+        "• البوت يعمل بالكامل عبر الأزرار.\n\n"
+        "• اختر تخصصك من القائمة الرئيسية.\n\n"
+        "• ادخل إلى قسم للعثور على المقررات: اختراد ثم اختر نوع المادة.\n\n"
+        "• داخل كل مادة ستجد التلاخيص، الشروحات، الكتب، الامتحانات وغيرها.\n\n"
         "• يمكنك دائمًا الرجوع باستخدام زر (رجوع).\n\n"
-        "تعليمات الاستخدام:\n"
-        "/inst\n\n"
-        "💡 لأي ملاحظات أو اقتراحات استخدم الأمر:\n"
-        "/note\n\n"
-        "عن الجمعية:\n"
-        "/about\n\n"
+        "• لإعادة تشغيل البوت:  /start\n\n"
+        "• محتويات البوت:  /cont\n\n"
+        "• 💡 لإرسال ملاحظة أو اقتراح قم بكتابة الرسالة للبوت.\n\n"
+        "• عن الجمعية:  /about\n\n"
         "👇 اختر من القائمة:"
     )
 
@@ -140,7 +176,7 @@ async def about(update: Update, context: ContextTypes.DEFAULT_TYPE):
         [
             InlineKeyboardButton("▶️ قناة اليوتيوب", url="https://youtube.com/@ivr_channel?si=UPQeWn_mKz28jnZB")
         ],
-        # [InlineKeyboardButton("🤝 انضم لنا", url="PUT_LINK_HERE")],
+        # [InlineKeyboardButton("🤝 انضم_HERE")],
         [InlineKeyboardButton("📝 قدم مقترحاً", callback_data="note")],
         [
             InlineKeyboardButton("🏫 IVR NAJAH", url="https://www.facebook.com/groups/2416874278576851/")
@@ -155,15 +191,6 @@ async def about(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup=keyboard
     )
 
-# async def bots(update: Update, context: ContextTypes.DEFAULT_TYPE):
-#     await update.message.reply_text(
-#         "🤖 البوتات المرتبطة:\n"
-#         "@tamfk2006\n"
-#         "@Tak6Bot\n"
-#         "@IVR_Library_bot"
-#     )
-
-
 # =========================
 # Callback Buttons
 # =========================
@@ -174,13 +201,13 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     data = query.data
 
     # ---- Main specializations ----
-    if data == "shared_subjects":
+    if data.endswith("shared_subjects"):
         await query.edit_message_text(
             text="📚 المواد المشتركة بين جميع التخصصات:",
-            reply_markup=shared_subjects_menu()
+            reply_markup=shared_subjects_menu(data)
         )
 
-    elif data =="shared_um":
+    elif data.endswith("_shared_um"):
         await query.edit_message_text(
             text="📚 إجباري الجامعة:",
             reply_markup=InlineKeyboardMarkup([
@@ -205,7 +232,7 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 ]
             ])
         )
-    elif data=="shared_cm":
+    elif data.endswith("_shared_cm"):
         await query.edit_message_text(
             text="📚 إجباري الكلية:",
             reply_markup=InlineKeyboardMarkup([
@@ -246,7 +273,7 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 ]
             ])
         )
-    elif data=="shared_uo":
+    elif data.endswith("_shared_uo"):
         await query.edit_message_text(
             text="📚 اختياري الجامعة:",
             reply_markup=InlineKeyboardMarkup([
@@ -288,15 +315,58 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 ]
             ])
         )
+        
+    elif data == "grad":
+        await query.edit_message_text(
+            text="🎓 مشاريع التخرج\n\nاختر التخصص:",
+            reply_markup=InlineKeyboardMarkup([
+                [
+                    InlineKeyboardButton("💻 هندسة الحاسوب", callback_data="cse_grad"), 
+                    InlineKeyboardButton("📡 هندسة الاتصالات", callback_data="te_grad")
+                ],
+                [
+                    InlineKeyboardButton("🛠️ هندسة الميكانيك", callback_data="me_grad"), 
+                    InlineKeyboardButton("⚙️ هندسة الميكاترونيكس", callback_data="mee_grad")
+                ],
+                [
+                    InlineKeyboardButton("⚡ الهندسة الكهربائية", callback_data="ee_grad"),
+                    InlineKeyboardButton("🪫 هندسة الطاقة", callback_data="gee_grad")
+                ],
+                [
+                    InlineKeyboardButton("🏗 هندسة البناء", callback_data="ce_grad"), 
+                    InlineKeyboardButton("🏢 الهندسة المدنية", callback_data="cve_grad")
+                ],
+                [   
+                    InlineKeyboardButton("🔙 رجوع", callback_data="back_main")
+                ]
+            ])
+        )
+    elif data.endswith("_grad"):
+        titles = {
+            "cse": "اختر مشروع/مقدمة مشروع:\n\n💻 هندسة الحاسوب",
+            "me": "اختر مشروع/مقدمة مشروع:\n\n🛠️ هندسة الميكانيك",
+            "mee": "اختر مشروع/مقدمة مشروع:\n\n⚙️ هندسة الميكاترونيكس",
+            "ee": "اختر مشروع/مقدمة مشروع:\n\n⚡ الهندسة الكهربائية",
+            "gee": "اختر مشروع/مقدمة مشروع:\n\n🪫 هندسة الطاقة",
+            "te": "اختر مشروع/مقدمة مشروع:\n\n📡 هندسة الاتصالات",
+            "ce": "اختر مشروع/مقدمة مشروع:\n\n🏗️ هندسة البناء",
+            "cve": "اختر مشروع/مقدمة مشروع:\n\n🏢 الهندسة المدنية"
+        }
+        await query.edit_message_text(
+            text=titles[data.split("_")[0]],
+            reply_markup=proj_probo_menu(data)
+        )
 
-
-    elif data in ["cse", "me", "ee", "te", "ce"]:
+    elif data in ["cse", "me", "ee", "te", "ce", "mee", "ee", "cve"]:
         titles = {
             "cse": "💻 هندسة الحاسوب",
             "me": "⚙️ هندسة الميكانيك والميكاترونيكس",
+            "mee": "⚙️ هندسة الميكانيك والميكاترونيكس",
             "ee": "⚡ الهندسة الكهربائية والأتمتة الصناعية",
+            "eae": "⚡ الهندسة الكهربائية والأتمتة الصناعية",
             "te": "📡 هندسة الاتصالات",
-            "ce": "🏗 هندسة البناء والهندسة المدنية"
+            "ce": "🏗 هندسة البناء والهندسة المدنية",
+            "cve": "🏗 هندسة البناء والهندسة المدنية"
         }
 
         await query.edit_message_text(
@@ -304,16 +374,6 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
             reply_markup=specialization_menu(data)
         )
 
-
-    # # ---- Subjects ----
-    # elif data.endswith("_subjects"):
-    #     spec = data.replace("_subjects", "")
-    #     await query.edit_message_text(
-    #         text="      📘 اخـــــــتــــــر نـــــــوع الــــــمـــــواد:      ",
-    #         reply_markup=subjects_menu(spec)
-    #     )
-
-    # ---- Subject lists (example implementation) ----
     elif data=="cse_dm":
         await query.edit_message_text(
             text="حاسوب - إجباري تخصص:",
@@ -628,7 +688,6 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 ]
             ])
         )
-
     elif data=="ee_do":
         await query.edit_message_text(
             text="كهرباء - اختياري تخصص:",
@@ -803,7 +862,6 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 ]
             ])
         )
-
     elif data=="me_do":
         await query.edit_message_text(
             text="ميكانيك وميكاترونيكس - اختياري تخصص:",
@@ -910,7 +968,6 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 ]
             ])
         )
-
     elif data=="ce_do":
         await query.edit_message_text(
             text="بناء ومدني - اختياري تخصص:",
@@ -939,50 +996,86 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # ---- Roadmaps ----
     elif data == "cse_roadmaps":
-        keyboard = [
-            [
-                InlineKeyboardButton("🤖 AI & Machine Learning", url = "https://roadmap.sh/machine-learning")
-            ],
-            [
-                InlineKeyboardButton("📊 Data Science", url = "https://roadmap.sh/data-engineer"), 
-                InlineKeyboardButton("🤖 Robotics", url = "https://qr1.me-qr.com/mobile/pdf/d1770eda-eaec-47c7-aefe-d6b04597d1d9")
-            ],
-            [
-                InlineKeyboardButton("🔐 Cybersecurity", url = "https://roadmap.sh/cyber-security"), 
-                InlineKeyboardButton("🌐 Full Stack Developer", url = "https://roadmap.sh/full-stack")
-            ],
-            [
-                InlineKeyboardButton("🎨 Frontend", url = "https://roadmap.sh/frontend"), 
-                InlineKeyboardButton("🧠 Backend", url = "https://roadmap.sh/backend")
-            ],
-            [
-                InlineKeyboardButton("📱 iOS Dev", url = "https://roadmap.sh/ios"), 
-                InlineKeyboardButton("🧪 QA", url = "https://roadmap.sh/qa"), InlineKeyboardButton("🖌 UX", url = "https://roadmap.sh/ux-design")
-            ],
-            [
-                InlineKeyboardButton("📱 Android Dev", url = "https://roadmap.sh/android"), 
-                InlineKeyboardButton("🎮 Game Developer", url = "https://roadmap.sh/game-developer")
-            ],
-            [
-                InlineKeyboardButton("⚙ Low Level Programming", url = "https://qr1.me-qr.com/mobile/pdf/42137ab5-0755-4824-9f23-707f8f2e3df0")
-            ],
-            [
-                InlineKeyboardButton("⚡more tracks roadmaps⚡", url = "https://roadmap.sh")
-            ],
-            [
-                InlineKeyboardButton("🔙 رجوع", callback_data="cse"), 
-                InlineKeyboardButton("🏠 القائمة الرئيسية", callback_data="back_main")
-            ]
-        ]
         await query.edit_message_text(
             text="🗺 Roadmaps – هندسة الحاسوب",
-            reply_markup=InlineKeyboardMarkup(keyboard)
+            reply_markup=InlineKeyboardMarkup([
+                [
+                    InlineKeyboardButton("🤖 AI & Machine Learning", url = "https://roadmap.sh/machine-learning")
+                ],
+                [
+                    InlineKeyboardButton("📊 Data Science", url = "https://roadmap.sh/data-engineer"), 
+                    InlineKeyboardButton("🤖 Robotics", url = "https://qr1.me-qr.com/mobile/pdf/d1770eda-eaec-47c7-aefe-d6b04597d1d9")
+                ],
+                [
+                    InlineKeyboardButton("🔐 Cybersecurity", url = "https://roadmap.sh/cyber-security"), 
+                    InlineKeyboardButton("🌐 Full Stack Developer", url = "https://roadmap.sh/full-stack")
+                ],
+                [
+                    InlineKeyboardButton("🎨 Frontend", url = "https://roadmap.sh/frontend"), 
+                    InlineKeyboardButton("🧠 Backend", url = "https://roadmap.sh/backend")
+                ],
+                [
+                    InlineKeyboardButton("📱 iOS Dev", url = "https://roadmap.sh/ios"), 
+                    InlineKeyboardButton("🧪 QA", url = "https://roadmap.sh/qa"), InlineKeyboardButton("🖌 UX", url = "https://roadmap.sh/ux-design")
+                ],
+                [
+                    InlineKeyboardButton("📱 Android Dev", url = "https://roadmap.sh/android"), 
+                    InlineKeyboardButton("🎮 Game Developer", url = "https://roadmap.sh/game-developer")
+                ],
+                [
+                    InlineKeyboardButton("⚙ Low Level Programming", url = "https://qr1.me-qr.com/mobile/pdf/42137ab5-0755-4824-9f23-707f8f2e3df0")
+                ],
+                [
+                    InlineKeyboardButton("⚡more tracks roadmaps⚡", url = "https://roadmap.sh")
+                ],
+                [
+                    InlineKeyboardButton("🔙 رجوع", callback_data="cse"), 
+                    InlineKeyboardButton("🏠 القائمة الرئيسية", callback_data="back_main")
+                ]
+            ])
         )
-
+        
+    elif data == "about":
+        await query.edit_message_text(
+            text =
+            "✳️ ما هي جمعية IVR\n\n⬅️ هي مؤسسة طلابية تطوعية غير ربحية مستقلة تقوم على تيسير أمور الطلبة في جامعة فلسطين التقنية (خضوري) ورفع مستواهم أكاديمياً ودينياً وثقافياً وعلمياً.",
+    
+            reply_markup=InlineKeyboardMarkup([
+                [
+                    InlineKeyboardButton("🌐 موقع الجمعية", url="https://ivr-team-ptuk.github.io/IVR-Library/?fbclid=IwY2xjawNymGFleHRuA2FlbQIxMABicmlkETFMSGl6T3c4cVpQbWpuS2p5AR68bIpdoxosS9jmgwshDFGnri5PuCaE2fCbAJGlUuTNpUB3xavM77oyuWXnpA_aem_zRZUN5noXRofmBzQFgpyLQ")
+                ],
+                [
+                    InlineKeyboardButton("🏛 منصة كلية الهندسة والتكنولوجيا IVR", url="https://www.facebook.com/groups/395354431026877/")
+                ],
+                [
+                    InlineKeyboardButton("حساب الجمعية - فيسبوك", url="https://www.facebook.com/groups/395354431026877/user/100031851995367"),
+                    InlineKeyboardButton("حساب الجمعية - إنستغرام", url="https://www.instagram.com/ivr_ptuk/")
+                ],
+                [
+                    InlineKeyboardButton("اللجنة العلمية - فيسبوك", url="https://www.facebook.com/groups/395354431026877/user/100046123754881")
+                ],
+                [
+                    InlineKeyboardButton("اللجنة الثقافية – فيسبوك", url="https://www.facebook.com/groups/395354431026877/user/100092553221922/"),
+                    InlineKeyboardButton("اللجنة الثقافية – إنستغرام", url="https://www.instagram.com/ivr.cultural/")
+                ],
+                [
+                    InlineKeyboardButton("▶️ قناة اليوتيوب", url="https://youtube.com/@ivr_channel?si=UPQeWn_mKz28jnZB")
+                ],
+                # [InlineKeyboardButton("🤝 انضم_HERE")],
+                [InlineKeyboardButton("📝 قدم مقترحاً", callback_data="note")],
+                [
+                    InlineKeyboardButton("🏫 IVR NAJAH", url="https://www.facebook.com/groups/2416874278576851/")
+                ],
+                [
+                    InlineKeyboardButton("🔙 رجوع", callback_data="faq"),
+                    InlineKeyboardButton("🏠 القائمة الرئيسية", callback_data="back_main")
+                ]
+            ])
+        )
         # await query.message.reply_text(
         #     "🗺 Roadmaps – هندسة الحاسوب",
         #     reply_markup=InlineKeyboardMarkup([
-        #         [InlineKeyboardButton("🔙 رجوع", callback_data="cse_roadmaps"), InlineKeyboardButton("🏠 القائمة الرئيسية", callback_data="back_main")]
+        #         [InlineKeyboardButton(, InlineKeyboardButton("🏠 القائمة الرئيسية", callback_data="back_main")]
         #     ])
         # )
 
@@ -1000,6 +1093,7 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 InlineKeyboardButton("💡 نصائح", callback_data="faq_tips")
             ],
             [
+                InlineKeyboardButton("👥 عنا", callback_data="about"),
                 InlineKeyboardButton("🔗 روابط هامة", callback_data="external_links")
             ],
             [
@@ -1011,7 +1105,6 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
             text="❓ الأسئلة الشائعة:",
             reply_markup=InlineKeyboardMarkup(keyboard)
         )
-
     elif data == "faq_university":
         await query.edit_message_text(
             text="🏫 عن الجامعة:\n\n"
@@ -1026,35 +1119,30 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 ]
             ])
         )
-        
     elif data == "external_links":
         await query.edit_message_text(
             text="🔗 روابط هامة:",
             reply_markup=InlineKeyboardMarkup([
                 [
-                    InlineKeyboardButton("🏢 البورتال", url = "https://edugate.ptuk.edu.ps/faces/ui/pages/student/index.xhtml")
+                    InlineKeyboardButton("🏢 موقع الجامعة", url = "https://ptuk.edu.ps/ar/"),
+                    InlineKeyboardButton("📝 موقع الجمعية", url = "https://ivr-team-ptuk.github.io/IVR-Library/")
                 ],
                 [
-                    InlineKeyboardButton("🏢 موقع الجامعة", url = "https://ptuk.edu.ps/ar/")
-                ],
-                [
+                    InlineKeyboardButton("🏢 البورتال", url = "https://edugate.ptuk.edu.ps/faces/ui/pages/student/index.xhtml"),
                     InlineKeyboardButton("🎓 المودل", url = "https://lms.ptuk.edu.ps/login/index.php?loginredirect=1")
-                ],
-                [
-                    InlineKeyboardButton("🗓️ التقويم الأكاديمي", url = "https://ptuk.edu.ps/ar/academic-calendar.php")
                 ],
                 [
                     InlineKeyboardButton("📚 الخطط الدراسية الرسمية", url = "https://edugate.ptuk.edu.ps/faces/ui/pages/guest/plan/index.xhtml")
                 ],
                 [
-                    InlineKeyboardButton("📝 موقع الجمعية", url = "https://ivr-team-ptuk.github.io/IVR-Library/")
+                    InlineKeyboardButton("📚 الخطط الاسترشادية الشجرية", url = "https://drive.google.com/drive/folders/1BTQwIUQfj594V4cTDpI6EAbUkzaJ3PXo?usp=drive_link")
                 ],
                 [
                     InlineKeyboardButton("📧 أرقام وإيميلات الدكاترة", url = "https://drive.google.com/file/d/1zuK-Y8qVAxBH_XWaNqOu2wQEkKQYMfxh/view")
                 ],
-                # [
-                #     InlineKeyboardButton("📚 الخطط الاسترشادية الشجرية", url = "")
-                # ],
+                [
+                    InlineKeyboardButton("🗓️ التقويم الأكاديمي", url = "https://ptuk.edu.ps/ar/academic-calendar.php")
+                ],
                 # [
                 #     InlineKeyboardButton("🔗 روابط هامة", url = "")
                 # ],
@@ -1070,7 +1158,6 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 ]
             ])
         )
-
     elif data == "faq_scholarships":
         await query.edit_message_text(
             text="🎓 عن المنح:\n\n"
@@ -1085,7 +1172,6 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 ]
             ])
         )
-
     elif data == "faq_study":
         await query.edit_message_text(
             text="📚 عن الدراسة وطرقها:\n\n"
@@ -1100,7 +1186,6 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 ]
             ])
         )
-
     elif data == "faq_teachers":
         await query.edit_message_text(
             text="👨‍🏫 عن المدرسين:\n\n"
@@ -1110,7 +1195,6 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 [InlineKeyboardButton("🔙 رجوع", callback_data="faq"), InlineKeyboardButton("🏠 القائمة الرئيسية", callback_data="back_main")]
             ])
         )
-
     elif data == "faq_freshmen":
         await query.edit_message_text(
             text="🐣 أسئلة سنافر:\n\n"
@@ -1125,7 +1209,6 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 ]
             ])
         )
-
     elif data == "faq_tips":
         await query.edit_message_text(
             text="💡 نصائح:\n\n"
@@ -1143,20 +1226,19 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # ---- Back to main ----
     elif data == "back_main":
         await query.edit_message_text(
-            text=  "👋 أهلاً بك في بوت الهندسة الجامعية\n\n"
-        "📌 **طريقة استخدام البوت:**\n"
-        "• البوت يعمل بالكامل عبر الأزرار.\n"
-        "• اختر تخصصك من القائمة الرئيسية.\n"
-        "• ادخل إلى قسم المواد ثم اختر نوع المادة.\n"
-        "• داخل كل مادة ستجد التلاخيص، الشروحات، الكتب، الامتحانات وغيرها.\n"
-        "• يمكنك دائمًا الرجوع باستخدام زر (رجوع).\n\n"
-        "تعليمات الاستخدام:\n"
-        "/inst\n\n"
-        "💡 لأي ملاحظات أو اقتراحات استخدم الأمر:\n"
-        "/note\n\n"
-        "عن الجمعية، وروابط خارجية:\n"
-        "/about\n\n"
-        "👇 اختر من القائمة:",
+            text=
+            "👋 أهلاً بك في بوت IVR copilot من تطوير جمعية IVR الهندسية\n\n"
+            "📌 طريقة استخدام البوت: \n\n"
+            "• البوت يعمل بالكامل عبر الأزرار.\n\n"
+            "• اختر تخصصك من القائمة الرئيسية.\n\n"
+            "• ادخل إلى قسم المواد ثم اختر نوع المادة.\n\n"
+            "• يمكنك الوصول إلى مشاريع التخرج من القائمة الرئيسية.\n\n"
+            "• يمكنك دائمًا الرجوع باستخدام زر (رجوع).\n\n"
+            "• لإعادة تشغيل البوت:  /start\n\n"
+            "• محتويات البوت:  /cont\n\n"
+            "• 💡 لإرسال ملاحظة أو اقتراح قم بكتابة الرسالة للبوت.\n\n"
+            "• عن الجمعية:  /about\n\n"
+            "👇 اختر من القائمة:",
             reply_markup=main_menu_keyboard()
         )
     # ---- Remove the sent note ----
@@ -1185,43 +1267,82 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 TARGET_CHAT_ID = -1002905917338
 
-async def note_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    context.user_data["waiting_for_note"] = True
-    await update.message.reply_text("✍️ أرسل الملاحظة الآن:")
+async def copy_all_messages(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not update.message:
+        return
 
+    user = update.message.from_user
+    if user.is_bot:
+        return
 
-async def handle_note_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if context.user_data.get("waiting_for_note"):
-        user = update.effective_user
-        note_text = update.message.text
-        username_text = f"@{user.username}" if user.username else "—"
-        full_message = (
-            "📩 ملاحظة جديدة\n\n"
-            f"📝 النص:\n{note_text}\n\n"
-            "──────────────\n"
-            f"👤 الاسم: {user.full_name}\n"
-            f"🆔 Telegram ID: {user.id}\n"
-             f"🔗 Username: {username_text}"
-        )
+    # تجاهل الأوامر فقط
+    if update.message.text and update.message.text.startswith("/"):
+        return
 
-        sent_msg = await context.bot.send_message(
+    prefix = (
+        "📩 رسالة جديدة من مستخدم\n\n"
+        f"👤 الاسم: {user.full_name}\n"
+        f"🆔 ID: {user.id}\n"
+        f"🔗 Username: @{user.username if user.username else '—'}\n"
+        "──────────────\n"
+    )
+
+    msg = update.message
+
+    # نص
+    if msg.text:
+        await context.bot.send_message(
             chat_id=TARGET_CHAT_ID,
-            text=full_message
+            text=prefix + msg.text
         )
 
-        # حفظ بيانات الحذف
-        context.user_data["last_note_msg_id"] = sent_msg.message_id
-        context.user_data["note_time"] = time.time()
+    # صورة
+    elif msg.photo:
+        await context.bot.send_photo(
+            chat_id=TARGET_CHAT_ID,
+            photo=msg.photo[-1].file_id,
+            caption=prefix + (msg.caption or "")
+        )
 
-        await update.message.reply_text(
-    "✅ تم إرسال الملاحظة.",
-            reply_markup=InlineKeyboardMarkup([
-                [
-                    InlineKeyboardButton("🗑 حذف الملاحظة", callback_data="delete_note")
-                ]
-            ])
-)
-        context.user_data["waiting_for_note"] = False
+    # ملف
+    elif msg.document:
+        await context.bot.send_document(
+            chat_id=TARGET_CHAT_ID,
+            document=msg.document.file_id,
+            caption=prefix + (msg.caption or "")
+        )
+
+    # فيديو
+    elif msg.video:
+        await context.bot.send_video(
+            chat_id=TARGET_CHAT_ID,
+            video=msg.video.file_id,
+            caption=prefix + (msg.caption or "")
+        )
+
+    # صوت
+    elif msg.audio:
+        await context.bot.send_audio(
+            chat_id=TARGET_CHAT_ID,
+            audio=msg.audio.file_id,
+            caption=prefix + (msg.caption or "")
+        )
+
+    # ملاحظة صوتية
+    elif msg.voice:
+        await context.bot.send_voice(
+            chat_id=TARGET_CHAT_ID,
+            voice=msg.voice.file_id,
+            caption=prefix
+        )
+
+    # أي شيء غير مدعوم
+    else:
+        await context.bot.send_message(
+            chat_id=TARGET_CHAT_ID,
+            text=prefix + "⚠️ تم إرسال نوع رسالة غير مدعوم حالياً."
+        )
+
 
 
 # =========================
@@ -1230,15 +1351,14 @@ async def handle_note_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 def main():
     app = Application.builder().token(TOKEN).build()
-
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("inst", inst))
     # app.add_handler(CommandHandler("bots", bots))
-    app.add_handler(CommandHandler("note", note_command))
     app.add_handler(CommandHandler("about", about))
-
     app.add_handler(CallbackQueryHandler(buttons))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_note_text))
+    app.add_handler(MessageHandler(filters.ALL, copy_all_messages))
+
+
 
     print("Bot is running...")
     app.run_polling()
