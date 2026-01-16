@@ -1275,73 +1275,53 @@ async def copy_all_messages(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if user.is_bot:
         return
 
-    # تجاهل الأوامر فقط
     if update.message.text and update.message.text.startswith("/"):
         return
 
+    ticket_id = user.id
+
     prefix = (
-        "📩 رسالة جديدة من مستخدم\n\n"
+        f"📩 محادثة #{ticket_id}\n\n"
         f"👤 الاسم: {user.full_name}\n"
         f"🆔 ID: {user.id}\n"
         f"🔗 Username: @{user.username if user.username else '—'}\n"
         "──────────────\n"
     )
 
+    # إرسال الرسالة للمشرفين
+    sent = await update.message.copy(
+        chat_id=TARGET_CHAT_ID,
+        caption=prefix + (update.message.caption or "")
+    )
+
+    # حفظ الربط: رسالة المشرف ← المستخدم
+    context.bot_data[sent.message_id] = user.id
+
+
+async def handle_admin_reply(update: Update, context: ContextTypes.DEFAULT_TYPE):
     msg = update.message
 
-    # نص
-    if msg.text:
-        await context.bot.send_message(
-            chat_id=TARGET_CHAT_ID,
-            text=prefix + msg.text
-        )
+    if msg.chat_id != TARGET_CHAT_ID:
+        return
 
-    # صورة
-    elif msg.photo:
-        await context.bot.send_photo(
-            chat_id=TARGET_CHAT_ID,
-            photo=msg.photo[-1].file_id,
-            caption=prefix + (msg.caption or "")
-        )
+    if not msg.reply_to_message:
+        return
 
-    # ملف
-    elif msg.document:
-        await context.bot.send_document(
-            chat_id=TARGET_CHAT_ID,
-            document=msg.document.file_id,
-            caption=prefix + (msg.caption or "")
-        )
+    replied_msg_id = msg.reply_to_message.message_id
 
-    # فيديو
-    elif msg.video:
-        await context.bot.send_video(
-            chat_id=TARGET_CHAT_ID,
-            video=msg.video.file_id,
-            caption=prefix + (msg.caption or "")
-        )
+    # هل هذه رسالة مرتبطة بمستخدم؟
+    target_user_id = context.bot_data.get(replied_msg_id)
+    if not target_user_id:
+        return
 
-    # صوت
-    elif msg.audio:
-        await context.bot.send_audio(
-            chat_id=TARGET_CHAT_ID,
-            audio=msg.audio.file_id,
-            caption=prefix + (msg.caption or "")
-        )
+    # نسخ رد المشرف للمستخدم
+    await msg.copy(
+        chat_id=target_user_id
+    )
 
-    # ملاحظة صوتية
-    elif msg.voice:
-        await context.bot.send_voice(
-            chat_id=TARGET_CHAT_ID,
-            voice=msg.voice.file_id,
-            caption=prefix
-        )
+    await msg.reply_text("✅ تم إرسال الرد للمستخدم.")
 
-    # أي شيء غير مدعوم
-    else:
-        await context.bot.send_message(
-            chat_id=TARGET_CHAT_ID,
-            text=prefix + "⚠️ تم إرسال نوع رسالة غير مدعوم حالياً."
-        )
+
 
 
 
@@ -1356,7 +1336,16 @@ def main():
     # app.add_handler(CommandHandler("bots", bots))
     app.add_handler(CommandHandler("about", about))
     app.add_handler(CallbackQueryHandler(buttons))
-    app.add_handler(MessageHandler(filters.ALL, copy_all_messages))
+    app.add_handler(
+        MessageHandler(
+            filters.Chat(chat_id=TARGET_CHAT_ID) & filters.REPLY & ~filters.COMMAND,
+            handle_admin_reply
+        )
+    )
+
+    app.add_handler(
+        MessageHandler(filters.ALL & ~filters.COMMAND, copy_all_messages)
+    )
 
 
 
