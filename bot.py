@@ -1,4 +1,6 @@
-import os, time
+import os, time, re, json
+from pathlib import Path
+from telegram.constants import ChatAction
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     Application,
@@ -10,6 +12,21 @@ from telegram.ext import (
 )
 
 TOKEN = os.getenv("BOT_TOKEN")
+
+TOPICS_FILE = "topics.json"
+
+def load_topics():
+    if not os.path.exists(TOPICS_FILE):
+        return {}
+    with open(TOPICS_FILE, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+def save_topics(data):
+    with open(TOPICS_FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+
+topics = load_topics()
 
 GRAD_PROJECTS = {
     
@@ -60,10 +77,20 @@ def main_menu_keyboard():
         ],
         [
             InlineKeyboardButton("❓ أسئلة شائعة", callback_data="faq"),
-            InlineKeyboardButton("شارك البوت", switch_inline_query="\nهذا هو بوت مساعدة الطلاب المطور بواسطة جمعية (IVR) الهندسية\n\nرابط البوت:\nhttps://t.me/IVR_Library_bot")
+            InlineKeyboardButton("شارك البوت", callback_data="share")
         ],
     ])
 
+def share_bot_keyboard():
+    WHATSAPP_SHARE = "https://wa.me/?text=جرّب%20هذا%20البوت%20الجامعي%20👇%20https://t.me/IVR_Library_bot"
+    FACEBOOK_SHARE = "https://www.facebook.com/sharer/sharer.php?u=https://t.me/IVR_Library_bot"
+    TELEGRAM_SHARE = "https://t.me/share/url?url=https://t.me/IVR_Library_bot&text=جرّب%20هذا%20البوت%20الجامعي"
+    return InlineKeyboardMarkup([
+        [InlineKeyboardButton("📤 شارك على واتساب", url=WHATSAPP_SHARE)],
+        [InlineKeyboardButton("📘 شارك على فيسبوك", url=FACEBOOK_SHARE)],
+        [InlineKeyboardButton("✈️ شارك على تيليجرام", url=TELEGRAM_SHARE)],
+        [InlineKeyboardButton("🔙 رجوع", callback_data="back_main")]
+    ])
 
 def specialization_menu(spec_code: str):
     return InlineKeyboardMarkup([
@@ -79,13 +106,6 @@ def specialization_menu(spec_code: str):
             InlineKeyboardButton("🔙 رجوع", callback_data="back_main")
         ]
     ])
-
-
-
-# def subjects_menu(spec_code: str):
-#     return InlineKeyboardMarkup([
-#         [InlineKeyboardButton("🔙 رجوع", callback_data=spec_code), InlineKeyboardButton("🏠 القائمة الرئيسية", callback_data="back_main")]
-#     ])
 
 def shared_subjects_menu(spec_code: str):
     return InlineKeyboardMarkup([
@@ -103,6 +123,7 @@ def shared_subjects_menu(spec_code: str):
             InlineKeyboardButton("🏠 القائمة الرئيسية", callback_data="back_main")
         ]
     ])
+    
 def proj_probo_menu(spec_code: str):
     return InlineKeyboardMarkup([
         [
@@ -141,7 +162,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         intro_text,
         reply_markup=main_menu_keyboard()
     )
-
 
 async def inst(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
@@ -1241,92 +1261,131 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "👇 اختر من القائمة:",
             reply_markup=main_menu_keyboard()
         )
-    # ---- Remove the sent note ----
-    elif data == "delete_note":
-        msg_id = context.user_data.get("last_note_msg_id")
-        note_time = context.user_data.get("note_time")
 
-        if not msg_id or not note_time:
-            await query.answer("❌ لا توجد ملاحظة للحذف", show_alert=True)
-            return
-
-        if time.time() - note_time > 5:
-            await query.answer("⏱ انتهت مهلة الحذف", show_alert=True)
-            await query.message.edit_text("❌ انتهت مهلة حذف الملاحظة.")
-            return
-
-        await context.bot.delete_message(
-            chat_id=TARGET_CHAT_ID,
-            message_id=msg_id
+    elif data == "share":
+        await query.edit_message_text(
+            text= "شارك البوت:",
+        reply_markup=share_bot_keyboard()
         )
-
-        await query.message.edit_text("🗑 تم حذف الملاحظة بنجاح.")
 # =========================
 # Notes forwarding
 # =========================
 
-TARGET_CHAT_ID = -1003501470690
+TARGET_CHAT_ID = -1002905917338
+
+async def get_or_create_topic(context, user):
+    topics = load_topics()
+    user_id = str(user.id)
+
+    if user_id in topics:
+        return topics[user_id]["thread_id"]
+
+    # إنشاء Topic جديد
+    topic = await context.bot.create_forum_topic(
+        chat_id=TARGET_CHAT_ID,
+        name=f"{user.full_name}"
+    )
+
+    topics[user_id] = {
+        "thread_id": topic.message_thread_id,
+        "name": user.full_name
+    }
+    save_topics(topics)
+
+    return topic.message_thread_id
 
 async def copy_all_messages(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if msg.chat_id.startswith(-100):
-        return
-    
     if not update.message:
         return
 
-    user = update.message.from_user
+    msg = update.message
+    user = msg.from_user
+
     if user.is_bot:
         return
 
-    if update.message.text and update.message.text.startswith("/"):
+    # تجاهل الأوامر
+    if msg.text and msg.text.startswith("/"):
         return
 
-    ticket_id = user.id
+    # تجاهل المجموعات
+    if msg.chat.type != "private":
+        return
+
+    thread_id = await get_or_create_topic(context, user)
 
     prefix = (
-        f"📩 محادثة #{ticket_id}\n\n"
+        f"📩 رسالة جديدة\n\n"
         f"👤 الاسم: {user.full_name}\n"
         f"🆔 ID: {user.id}\n"
         f"🔗 Username: @{user.username if user.username else '—'}\n"
         "──────────────\n"
     )
 
-    # إرسال الرسالة للمشرفين
-    sent = await update.message.copy(
-        chat_id=TARGET_CHAT_ID,
-        caption=prefix + (update.message.caption or "")
-    )
+    send_kwargs = {
+        "chat_id": TARGET_CHAT_ID,
+        "message_thread_id": thread_id
+    }
 
-    # حفظ الربط: رسالة المشرف ← المستخدم
+    if msg.text:
+        sent = await context.bot.send_message(
+            text=prefix + msg.text,
+            **send_kwargs
+        )
+    elif msg.photo:
+        sent = await context.bot.send_photo(
+            photo=msg.photo[-1].file_id,
+            caption=prefix + (msg.caption or ""),
+            **send_kwargs
+        )
+    elif msg.document:
+        sent = await context.bot.send_document(
+            document=msg.document.file_id,
+            caption=prefix + (msg.caption or ""),
+            **send_kwargs
+        )
+    elif msg.video:
+        sent = await context.bot.send_video(
+            video=msg.video.file_id,
+            caption=prefix + (msg.caption or ""),
+            **send_kwargs
+        )
+    elif msg.audio:
+        sent = await context.bot.send_audio(
+            audio=msg.audio.file_id,
+            caption=prefix + (msg.caption or ""),
+            **send_kwargs
+        )
+    elif msg.voice:
+        sent = await context.bot.send_voice(
+            voice=msg.voice.file_id,
+            caption=prefix,
+            **send_kwargs
+        )
+    else:
+        sent = await context.bot.send_message(
+            text=prefix + "⚠️ نوع رسالة غير مدعوم",
+            **send_kwargs
+        )
+
+    # ربط رسالة المشرف بالمستخدم
     context.bot_data[sent.message_id] = user.id
-
 
 async def handle_admin_reply(update: Update, context: ContextTypes.DEFAULT_TYPE):
     msg = update.message
 
     if msg.chat_id != TARGET_CHAT_ID:
         return
-
     if not msg.reply_to_message:
         return
 
-    replied_msg_id = msg.reply_to_message.message_id
+    replied_id = msg.reply_to_message.message_id
+    target_user_id = context.bot_data.get(replied_id)
 
-    # هل هذه رسالة مرتبطة بمستخدم؟
-    target_user_id = context.bot_data.get(replied_msg_id)
     if not target_user_id:
         return
 
-    # نسخ رد المشرف للمستخدم
-    await msg.copy(
-        chat_id=target_user_id
-    )
-
-    await msg.reply_text("✅ تم إرسال الرد للمستخدم.")
-
-
-
-
+    await msg.copy(chat_id=target_user_id)
 
 # =========================
 # Main
@@ -1345,16 +1404,11 @@ def main():
             handle_admin_reply
         )
     )
-
     app.add_handler(
         MessageHandler(filters.ALL & ~filters.COMMAND, copy_all_messages)
     )
-
-
-
     print("Bot is running...")
     app.run_polling()
-
-
+    
 if __name__ == "__main__":
     main()
