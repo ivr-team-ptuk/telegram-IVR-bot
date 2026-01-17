@@ -1265,9 +1265,12 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # Notes forwarding
 # =========================
 
-TARGET_CHAT_ID = -1002905917338
+TARGET_CHAT_ID = -1003501470690
 
 async def copy_all_messages(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if msg.chat_id.startswith(-100):
+        return
+    
     if not update.message:
         return
 
