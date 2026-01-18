@@ -1,4 +1,5 @@
 import os, time, re, json
+from datetime import datetime
 from pathlib import Path
 from telegram.constants import ChatAction
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
@@ -14,6 +15,45 @@ from telegram.ext import (
 TOKEN = os.getenv("BOT_TOKEN")
 
 TOPICS_FILE = "topics.json"
+USERS_FILE = Path("users.json")
+
+def load_users_stats():
+    if USERS_FILE.exists():
+        with open(USERS_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return {"daily": {}, "monthly": {}, "yearly": {}}
+
+def save_users_stats(data):
+    with open(USERS_FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+USERS_STATS = load_users_stats()
+
+def track_user(user_id: int):
+    now = datetime.utcnow()
+
+    day_key = now.strftime("%Y-%m-%d")
+    month_key = now.strftime("%Y-%m")
+    year_key = now.strftime("%Y")
+
+    uid = str(user_id)
+
+    # DAILY
+    USERS_STATS["daily"].setdefault(day_key, [])
+    if uid not in USERS_STATS["daily"][day_key]:
+        USERS_STATS["daily"][day_key].append(uid)
+
+    # MONTHLY
+    USERS_STATS["monthly"].setdefault(month_key, [])
+    if uid not in USERS_STATS["monthly"][month_key]:
+        USERS_STATS["monthly"][month_key].append(uid)
+
+    # YEARLY
+    USERS_STATS["yearly"].setdefault(year_key, [])
+    if uid not in USERS_STATS["yearly"][year_key]:
+        USERS_STATS["yearly"][year_key].append(uid)
+
+    save_users_stats(USERS_STATS)
 
 def load_topics():
     if not os.path.exists(TOPICS_FILE):
@@ -157,7 +197,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "• عن الجمعية:  /about\n\n"
         "👇 اختر من القائمة:"
     )
-
+    
+    msg = update.message
+    user = msg.from_user
+    track_user(user.id)
+    
     await update.message.reply_text(
         intro_text,
         reply_markup=main_menu_keyboard()
@@ -1295,22 +1339,25 @@ async def get_or_create_topic(context, user):
     return topic.message_thread_id
 
 async def copy_all_messages(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    msg = update.message
+    user = msg.from_user
     if not update.message:
         return
 
-    msg = update.message
-    user = msg.from_user
 
     if user.is_bot:
         return
 
+    
     # تجاهل الأوامر
     if msg.text and msg.text.startswith("/"):
         return
 
+    
     # تجاهل المجموعات
     if msg.chat.type != "private":
         return
+        
 
     thread_id = await get_or_create_topic(context, user)
 
