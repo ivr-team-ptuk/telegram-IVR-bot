@@ -96,6 +96,9 @@ GRAD_PROJECTS = {
 # =========================
 
 def main_menu_keyboard():
+    msg = update.message
+    user = msg.from_user
+    track_user(user.id)
     return InlineKeyboardMarkup([
         [
             InlineKeyboardButton("💻 هندسة الحاسوب", callback_data="cse"), 
@@ -122,6 +125,9 @@ def main_menu_keyboard():
     ])
 
 def share_bot_keyboard():
+    msg = update.message
+    user = msg.from_user
+    track_user(user.id)
     WHATSAPP_SHARE = "https://wa.me/?text=جرّب%20هذا%20البوت%20الجامعي%20👇%20https://t.me/IVR_Library_bot"
     FACEBOOK_SHARE = "https://www.facebook.com/sharer/sharer.php?u=https://t.me/IVR_Library_bot"
     TELEGRAM_SHARE = "https://t.me/share/url?url=https://t.me/IVR_Library_bot&text=جرّب%20هذا%20البوت%20الجامعي"
@@ -148,6 +154,9 @@ def specialization_menu(spec_code: str):
     ])
 
 def shared_subjects_menu(spec_code: str):
+    msg = update.message
+    user = msg.from_user
+    track_user(user.id)
     return InlineKeyboardMarkup([
         [
             InlineKeyboardButton("📘 إجباري الجامعة", callback_data=f"{spec_code}_shared_um")
@@ -165,6 +174,9 @@ def shared_subjects_menu(spec_code: str):
     ])
     
 def proj_probo_menu(spec_code: str):
+    msg = update.message
+    user = msg.from_user
+    track_user(user.id)
     return InlineKeyboardMarkup([
         [
             InlineKeyboardButton("📂 مشاريع التخرج", url=GRAD_PROJECTS[f"{spec_code}_projects"])
@@ -208,12 +220,18 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 async def inst(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    msg = update.message
+    user = msg.from_user
+    track_user(user.id)
     await update.message.reply_text(
         "📘 هذا البوت تعليمي يعتمد على القوائم.\n"
         "تنقّل بين التخصصات والمواد باستخدام الأزرار فقط."
     )
 
 async def about(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    msg = update.message
+    user = msg.from_user
+    track_user(user.id)
     about_text = (
         "✳️ ما هي جمعية IVR\n\n"
         "⬅️ هي مؤسسة طلابية تطوعية غير ربحية مستقلة تقوم على تيسير أمور الطلبة في جامعة فلسطين التقنية (خضوري) ورفع مستواهم أكاديمياً ودينياً وثقافياً وعلمياً."
@@ -260,6 +278,9 @@ async def about(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # =========================
 
 async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    msg = update.message
+    user = msg.from_user
+    track_user(user.id)
     query = update.callback_query
     await query.answer()
     data = query.data
@@ -1341,6 +1362,7 @@ async def get_or_create_topic(context, user):
 async def copy_all_messages(update: Update, context: ContextTypes.DEFAULT_TYPE):
     msg = update.message
     user = msg.from_user
+    track_user(user.id)
     if not update.message:
         return
 
