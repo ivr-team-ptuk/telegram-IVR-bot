@@ -1,5 +1,5 @@
 import os, time, re, json
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from telegram.constants import ChatAction
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
@@ -13,7 +13,7 @@ from telegram.ext import (
 )
 
 TOKEN = os.getenv("BOT_TOKEN")
-
+TARGET_CHAT_ID = -1002905917338
 TOPICS_FILE = "topics.json"
 USERS_FILE = Path("users.json")
 
@@ -55,6 +55,131 @@ def track_user(user_id: int):
 
     save_users_stats(USERS_STATS)
 
+def get_daily_stats():
+    """الحصول على إحصائيات اليوم"""
+    today = datetime.utcnow().strftime("%Y-%m-%d")
+    return len(USERS_STATS["daily"].get(today, []))
+
+def get_monthly_stats():
+    """الحصول على إحصائيات الشهر الحالي"""
+    current_month = datetime.utcnow().strftime("%Y-%m")
+    return len(USERS_STATS["monthly"].get(current_month, []))
+
+def get_yearly_stats():
+    """الحصول على إحصائيات السنة الحالية"""
+    current_year = datetime.utcnow().strftime("%Y")
+    return len(USERS_STATS["yearly"].get(current_year, []))
+
+def get_total_users():
+    """الحصول على إجمالي المستخدمين الفريدين"""
+    all_users = set()
+    for day_users in USERS_STATS["daily"].values():
+        all_users.update(day_users)
+    return len(all_users)
+
+def get_today_date():
+    """الحصول على تاريخ اليوم بتنسيق جميل"""
+    return datetime.utcnow().strftime("%Y-%m-%d")
+
+def get_current_month_name():
+    """الحصول على اسم الشهر الحالي"""
+    return datetime.utcnow().strftime("%B %Y")
+
+def get_recent_days_stats(days=7):
+    """الحصول على إحصائيات آخر 7 أيام"""
+    recent_stats = {}
+    for i in range(days):
+        date = (datetime.utcnow() - timedelta(days=i)).strftime("%Y-%m-%d")
+        count = len(USERS_STATS["daily"].get(date, []))
+        # تحويل التاريخ إلى تنسيق قصير (مثل: Jan 25)
+        date_short = (datetime.utcnow() - timedelta(days=i)).strftime("%b %d")
+        recent_stats[date_short] = count
+    return recent_stats
+    
+async def users_analysis(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """لوحة تحكم مبسطة تعرض الإحصائيات الأساسية"""
+    query = update.callback_query
+    await query.answer()
+
+    # تحديث البيانات من الملف
+    global USERS_STATS
+    USERS_STATS = load_users_stats()
+
+    # الحصول على التواريخ الحالية
+    today = datetime.utcnow().strftime("%Y-%m-%d")
+    current_month = datetime.utcnow().strftime("%Y-%m")
+    current_year = datetime.utcnow().strftime("%Y")
+
+    # حساب إحصائيات آخر يوم
+    last_day_users = set()
+    for i in range(1):
+        date_key = (datetime.utcnow() - timedelta(days=i)).strftime("%Y-%m-%d")
+        day_users = USERS_STATS["daily"].get(date_key, [])
+        last_day_users.update(day_users)
+        last_day_users = set()
+   
+    # حساب إحصائيات آخر 7 أيام
+    last_7_days_users = set()
+    for i in range(7):
+        date_key = (datetime.utcnow() - timedelta(days=i)).strftime("%Y-%m-%d")
+        day_users = USERS_STATS["daily"].get(date_key, [])
+        last_7_days_users.update(day_users)
+
+    # حساب إحصائيات آخر 30 يوم (شهر)
+    last_30_days_users = set()
+    for i in range(30):
+        date_key = (datetime.utcnow() - timedelta(days=i)).strftime("%Y-%m-%d")
+        day_users = USERS_STATS["daily"].get(date_key, [])
+        last_30_days_users.update(day_users)
+
+    # إحصائيات السنة الحالية
+    yearly_users = set()
+    for month_key, users in USERS_STATS["monthly"].items():
+        if month_key.startswith(current_year):
+            yearly_users.update(users)
+
+    # إجمالي المستخدمين
+    all_users = set()
+    for day_users in USERS_STATS["daily"].values():
+        all_users.update(day_users)
+
+    # إنشاء الرسالة
+    message = f"""
+📊 **لوحة التحكم - إحصائيات المستخدمين**
+
+📈 **الإحصائيات الأساسية:**
+
+🔹 **هذا اليوم:**
+   • {len(last_day_users)} مستخدم
+
+🔹 **آخر 7 أيام:**
+   • {len(last_7_days_users)} مستخدم
+
+🔹 **آخر 30 يوم (شهر):**
+   • {len(last_30_days_users)} مستخدم
+
+🔹 **السنة الحالية ({current_year}):**
+   • {len(yearly_users)} مستخدم
+
+🔹 **الإجمالي الكلي:**
+   • {len(all_users)} مستخدم
+
+⏰ آخر تحديث: {datetime.utcnow().strftime('%H:%M:%S')}
+"""
+
+    # إنشاء الأزرار
+    keyboard = [
+        [InlineKeyboardButton("🔙 رجوع", callback_data="dashboard")],
+        [InlineKeyboardButton("🏠 القائمة الرئيسية", callback_data="back_main")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    await query.edit_message_text(
+        text=message,
+        reply_markup=reply_markup,
+        parse_mode='Markdown'
+    )
+    
 def load_topics():
     if not os.path.exists(TOPICS_FILE):
         return {}
@@ -69,7 +194,7 @@ def save_topics(data):
 topics = load_topics()
 
 GRAD_PROJECTS = {
-    
+
     #projects
         "te_grad_projects": "https://drive.google.com/drive/folders/1pW26jE-iZuMGFilp76ls9hOwin4f4V-P",
         "cse_grad_projects": "https://drive.google.com/drive/folders/1QCyDTwu8a2-YSQ8hOZBGTPgd_3LSYhhH",
@@ -79,7 +204,7 @@ GRAD_PROJECTS = {
         "me_grad_projects": "https://drive.google.com/drive/folders/1kg91mpS2gq2V1CvxKtAIjH86ovkmElQ2",
         "cve_grad_projects": "https://drive.google.com/drive/folders/1ZArELcmBMtltY0mOCQ92Fv7qq4bjqJ-m",
         "ee_grad_projects": "https://drive.google.com/drive/folders/11AxQeaKdYlmCmAQV08FfILaf5EjaudRo",
-    
+
     #proposals
         "te_grad_proposals": "https://drive.google.com/drive/folders/1DpI50ghBKMXMTdNG1j4YazJfhgboVfrZ",
         "cse_grad_proposals": "https://drive.google.com/drive/folders/1OIyr8WlnxMXseMCpQ5sRVntukgNNKEl_?usp=drive_link",
@@ -95,11 +220,8 @@ GRAD_PROJECTS = {
 # Helpers
 # =========================
 
-def main_menu_keyboard():
-    msg = update.message
-    user = msg.from_user
-    track_user(user.id)
-    return InlineKeyboardMarkup([
+def main_menu_keyboard(chat_id):
+    keyboard =  [
         [
             InlineKeyboardButton("💻 هندسة الحاسوب", callback_data="cse"), 
             InlineKeyboardButton("📡 هندسة الاتصالات", callback_data="te")
@@ -121,13 +243,18 @@ def main_menu_keyboard():
         [
             InlineKeyboardButton("❓ أسئلة شائعة", callback_data="faq"),
             InlineKeyboardButton("شارك البوت", callback_data="share")
-        ],
-    ])
+        ]
+    ]
+    if chat_id == TARGET_CHAT_ID:
+        keyboard.append(
+            [
+                InlineKeyboardButton("لوحة التحكم", callback_data="dashboard")
+            ]
+        )
+    return keyboard
 
 def share_bot_keyboard():
-    msg = update.message
-    user = msg.from_user
-    track_user(user.id)
+    
     WHATSAPP_SHARE = "https://wa.me/?text=جرّب%20هذا%20البوت%20الجامعي%20👇%20https://t.me/IVR_Library_bot"
     FACEBOOK_SHARE = "https://www.facebook.com/sharer/sharer.php?u=https://t.me/IVR_Library_bot"
     TELEGRAM_SHARE = "https://t.me/share/url?url=https://t.me/IVR_Library_bot&text=جرّب%20هذا%20البوت%20الجامعي"
@@ -154,9 +281,7 @@ def specialization_menu(spec_code: str):
     ])
 
 def shared_subjects_menu(spec_code: str):
-    msg = update.message
-    user = msg.from_user
-    track_user(user.id)
+    
     return InlineKeyboardMarkup([
         [
             InlineKeyboardButton("📘 إجباري الجامعة", callback_data=f"{spec_code}_shared_um")
@@ -172,11 +297,9 @@ def shared_subjects_menu(spec_code: str):
             InlineKeyboardButton("🏠 القائمة الرئيسية", callback_data="back_main")
         ]
     ])
-    
+
 def proj_probo_menu(spec_code: str):
-    msg = update.message
-    user = msg.from_user
-    track_user(user.id)
+    
     return InlineKeyboardMarkup([
         [
             InlineKeyboardButton("📂 مشاريع التخرج", url=GRAD_PROJECTS[f"{spec_code}_projects"])
@@ -195,6 +318,9 @@ def proj_probo_menu(spec_code: str):
 # =========================
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    chat_id = update.effective_chat.id
+    user = update.effective_user
+    track_user(user.id)
     intro_text = (
         "👋 أهلاً بك في بوت IVR copilot من تطوير جمعية IVR الهندسية\n\n"
         "📌 طريقة استخدام البوت: \n\n"
@@ -209,19 +335,16 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "• عن الجمعية:  /about\n\n"
         "👇 اختر من القائمة:"
     )
+
     
-    msg = update.message
-    user = msg.from_user
-    track_user(user.id)
-    
+
     await update.message.reply_text(
         intro_text,
-        reply_markup=main_menu_keyboard()
+        reply_markup=InlineKeyboardMarkup(main_menu_keyboard(chat_id)) #update, context
     )
 
 async def inst(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    msg = update.message
-    user = msg.from_user
+    user = update.effective_user
     track_user(user.id)
     await update.message.reply_text(
         "📘 هذا البوت تعليمي يعتمد على القوائم.\n"
@@ -229,8 +352,7 @@ async def inst(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 async def about(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    msg = update.message
-    user = msg.from_user
+    user = update.effective_user
     track_user(user.id)
     about_text = (
         "✳️ ما هي جمعية IVR\n\n"
@@ -278,8 +400,8 @@ async def about(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # =========================
 
 async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    msg = update.message
-    user = msg.from_user
+    chat_id = update.effective_chat.id
+    user = update.effective_user
     track_user(user.id)
     query = update.callback_query
     await query.answer()
@@ -291,7 +413,19 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
             text="📚 المواد المشتركة بين جميع التخصصات:",
             reply_markup=shared_subjects_menu(data)
         )
-
+        
+    elif data == "dashboard":
+        await query.edit_message_text(
+            text="لوحة التحكم:",
+            reply_markup=InlineKeyboardMarkup([
+                [
+                    InlineKeyboardButton("إحصائيات الاستخدام", callback_data = "users_analysis"), 
+                    InlineKeyboardButton("خروج", callback_data = "back_main")
+                ]
+            ])
+        )
+    elif data == "users_analysis":
+        await users_analysis(update, context)
     elif data.endswith("_shared_um"):
         await query.edit_message_text(
             text="📚 إجباري الجامعة:",
@@ -400,7 +534,7 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 ]
             ])
         )
-        
+
     elif data == "grad":
         await query.edit_message_text(
             text="🎓 مشاريع التخرج\n\nاختر التخصص:",
@@ -1119,12 +1253,12 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 ]
             ])
         )
-        
+
     elif data == "about":
         await query.edit_message_text(
             text =
             "✳️ ما هي جمعية IVR\n\n⬅️ هي مؤسسة طلابية تطوعية غير ربحية مستقلة تقوم على تيسير أمور الطلبة في جامعة فلسطين التقنية (خضوري) ورفع مستواهم أكاديمياً ودينياً وثقافياً وعلمياً.",
-    
+
             reply_markup=InlineKeyboardMarkup([
                 [
                     InlineKeyboardButton("🌐 موقع الجمعية", url="https://ivr-team-ptuk.github.io/IVR-Library/?fbclid=IwY2xjawNymGFleHRuA2FlbQIxMABicmlkETFMSGl6T3c4cVpQbWpuS2p5AR68bIpdoxosS9jmgwshDFGnri5PuCaE2fCbAJGlUuTNpUB3xavM77oyuWXnpA_aem_zRZUN5noXRofmBzQFgpyLQ")
@@ -1324,7 +1458,7 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "• 💡 لإرسال ملاحظة أو اقتراح قم بكتابة الرسالة للبوت.\n\n"
             "• عن الجمعية:  /about\n\n"
             "👇 اختر من القائمة:",
-            reply_markup=main_menu_keyboard()
+            reply_markup=InlineKeyboardMarkup(main_menu_keyboard(chat_id))
         )
 
     elif data == "share":
@@ -1335,8 +1469,6 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # =========================
 # Notes forwarding
 # =========================
-
-TARGET_CHAT_ID = -1002905917338
 
 async def get_or_create_topic(context, user):
     topics = load_topics()
@@ -1362,27 +1494,18 @@ async def get_or_create_topic(context, user):
 async def copy_all_messages(update: Update, context: ContextTypes.DEFAULT_TYPE):
     msg = update.message
     user = msg.from_user
-    track_user(user.id)
+    
     if not update.message:
         return
-
 
     if user.is_bot:
         return
 
-    
-    # تجاهل الأوامر
-    if msg.text and msg.text.startswith("/"):
-        return
-
-    
     # تجاهل المجموعات
     if msg.chat.type != "private":
         return
-        
 
     thread_id = await get_or_create_topic(context, user)
-
     prefix = (
         f"📩 رسالة جديدة\n\n"
         f"👤 الاسم: {user.full_name}\n"
@@ -1436,14 +1559,15 @@ async def copy_all_messages(update: Update, context: ContextTypes.DEFAULT_TYPE):
             text=prefix + "⚠️ نوع رسالة غير مدعوم",
             **send_kwargs
         )
-
     # ربط رسالة المشرف بالمستخدم
     context.bot_data[sent.message_id] = user.id
-
+    
 async def handle_admin_reply(update: Update, context: ContextTypes.DEFAULT_TYPE):
     msg = update.message
-
+    user = msg.from_user
+    track_user(user.id)
     if msg.chat_id != TARGET_CHAT_ID:
+        await copy_all_messages(update, context)
         return
     if not msg.reply_to_message:
         return
@@ -1464,20 +1588,11 @@ def main():
     app = Application.builder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("inst", inst))
-    # app.add_handler(CommandHandler("bots", bots))
     app.add_handler(CommandHandler("about", about))
     app.add_handler(CallbackQueryHandler(buttons))
-    app.add_handler(
-        MessageHandler(
-            filters.Chat(chat_id=TARGET_CHAT_ID) & filters.REPLY & ~filters.COMMAND,
-            handle_admin_reply
-        )
-    )
-    app.add_handler(
-        MessageHandler(filters.ALL & ~filters.COMMAND, copy_all_messages)
-    )
+    app.add_handler(MessageHandler(filters.ALL,handle_admin_reply))
     print("Bot is running...")
     app.run_polling()
-    
+
 if __name__ == "__main__":
     main()
