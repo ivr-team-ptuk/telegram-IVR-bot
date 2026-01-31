@@ -1569,8 +1569,8 @@ async def handle_admin_reply(update: Update, context: ContextTypes.DEFAULT_TYPE)
     if msg.chat_id != TARGET_CHAT_ID:
         await copy_all_messages(update, context)
         return
-    # if not msg.reply_to_message:
-    #     return
+    if not msg.reply_to_message:
+        return
 
     replied_id = msg.reply_to_message.message_id
     target_user_id = context.bot_data.get(replied_id)
