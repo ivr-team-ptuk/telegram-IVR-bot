@@ -15,170 +15,6 @@ from telegram.ext import (
 TOKEN = os.getenv("BOT_TOKEN")
 TARGET_CHAT_ID = -1002905917338
 TOPICS_FILE = "topics.json"
-USERS_FILE = Path("users.json")
-
-def load_users_stats():
-    if USERS_FILE.exists():
-        with open(USERS_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return {"daily": {}, "monthly": {}, "yearly": {}}
-
-def save_users_stats(data):
-    with open(USERS_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
-
-USERS_STATS = load_users_stats()
-
-def track_user(user_id: int):
-    now = datetime.utcnow()
-
-    day_key = now.strftime("%Y-%m-%d")
-    month_key = now.strftime("%Y-%m")
-    year_key = now.strftime("%Y")
-
-    uid = str(user_id)
-
-    # DAILY
-    USERS_STATS["daily"].setdefault(day_key, [])
-    if uid not in USERS_STATS["daily"][day_key]:
-        USERS_STATS["daily"][day_key].append(uid)
-
-    # MONTHLY
-    USERS_STATS["monthly"].setdefault(month_key, [])
-    if uid not in USERS_STATS["monthly"][month_key]:
-        USERS_STATS["monthly"][month_key].append(uid)
-
-    # YEARLY
-    USERS_STATS["yearly"].setdefault(year_key, [])
-    if uid not in USERS_STATS["yearly"][year_key]:
-        USERS_STATS["yearly"][year_key].append(uid)
-
-    save_users_stats(USERS_STATS)
-
-def get_daily_stats():
-    """الحصول على إحصائيات اليوم"""
-    today = datetime.utcnow().strftime("%Y-%m-%d")
-    return len(USERS_STATS["daily"].get(today, []))
-
-def get_monthly_stats():
-    """الحصول على إحصائيات الشهر الحالي"""
-    current_month = datetime.utcnow().strftime("%Y-%m")
-    return len(USERS_STATS["monthly"].get(current_month, []))
-
-def get_yearly_stats():
-    """الحصول على إحصائيات السنة الحالية"""
-    current_year = datetime.utcnow().strftime("%Y")
-    return len(USERS_STATS["yearly"].get(current_year, []))
-
-def get_total_users():
-    """الحصول على إجمالي المستخدمين الفريدين"""
-    all_users = set()
-    for day_users in USERS_STATS["daily"].values():
-        all_users.update(day_users)
-    return len(all_users)
-
-def get_today_date():
-    """الحصول على تاريخ اليوم بتنسيق جميل"""
-    return datetime.utcnow().strftime("%Y-%m-%d")
-
-def get_current_month_name():
-    """الحصول على اسم الشهر الحالي"""
-    return datetime.utcnow().strftime("%B %Y")
-
-def get_recent_days_stats(days=7):
-    """الحصول على إحصائيات آخر 7 أيام"""
-    recent_stats = {}
-    for i in range(days):
-        date = (datetime.utcnow() - timedelta(days=i)).strftime("%Y-%m-%d")
-        count = len(USERS_STATS["daily"].get(date, []))
-        # تحويل التاريخ إلى تنسيق قصير (مثل: Jan 25)
-        date_short = (datetime.utcnow() - timedelta(days=i)).strftime("%b %d")
-        recent_stats[date_short] = count
-    return recent_stats
-    
-async def users_analysis(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """لوحة تحكم مبسطة تعرض الإحصائيات الأساسية"""
-    query = update.callback_query
-    await query.answer()
-
-    # تحديث البيانات من الملف
-    global USERS_STATS
-    USERS_STATS = load_users_stats()
-
-    # الحصول على التواريخ الحالية
-    today = datetime.utcnow().strftime("%Y-%m-%d")
-    current_month = datetime.utcnow().strftime("%Y-%m")
-    current_year = datetime.utcnow().strftime("%Y")
-
-    # حساب إحصائيات آخر يوم
-    last_day_users = set()
-    for i in range(1):
-        date_key = (datetime.utcnow() - timedelta(days=i)).strftime("%Y-%m-%d")
-        day_users = USERS_STATS["daily"].get(date_key, [])
-        last_day_users.update(day_users)
-        last_day_users = set()
-   
-    # حساب إحصائيات آخر 7 أيام
-    last_7_days_users = set()
-    for i in range(7):
-        date_key = (datetime.utcnow() - timedelta(days=i)).strftime("%Y-%m-%d")
-        day_users = USERS_STATS["daily"].get(date_key, [])
-        last_7_days_users.update(day_users)
-
-    # حساب إحصائيات آخر 30 يوم (شهر)
-    last_30_days_users = set()
-    for i in range(30):
-        date_key = (datetime.utcnow() - timedelta(days=i)).strftime("%Y-%m-%d")
-        day_users = USERS_STATS["daily"].get(date_key, [])
-        last_30_days_users.update(day_users)
-
-    # إحصائيات السنة الحالية
-    yearly_users = set()
-    for month_key, users in USERS_STATS["monthly"].items():
-        if month_key.startswith(current_year):
-            yearly_users.update(users)
-
-    # إجمالي المستخدمين
-    all_users = set()
-    for day_users in USERS_STATS["daily"].values():
-        all_users.update(day_users)
-
-    # إنشاء الرسالة
-    message = f"""
-📊 **لوحة التحكم - إحصائيات المستخدمين**
-
-📈 **الإحصائيات الأساسية:**
-
-🔹 **هذا اليوم:**
-   • {len(last_day_users)} مستخدم
-
-🔹 **آخر 7 أيام:**
-   • {len(last_7_days_users)} مستخدم
-
-🔹 **آخر 30 يوم (شهر):**
-   • {len(last_30_days_users)} مستخدم
-
-🔹 **السنة الحالية ({current_year}):**
-   • {len(yearly_users)} مستخدم
-
-🔹 **الإجمالي الكلي:**
-   • {len(all_users)} مستخدم
-
-⏰ آخر تحديث: {datetime.utcnow().strftime('%H:%M:%S')}
-"""
-
-    # إنشاء الأزرار
-    keyboard = [
-        [InlineKeyboardButton("🔙 رجوع", callback_data="dashboard")],
-        [InlineKeyboardButton("🏠 القائمة الرئيسية", callback_data="back_main")]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
-    await query.edit_message_text(
-        text=message,
-        reply_markup=reply_markup,
-        parse_mode='Markdown'
-    )
     
 def load_topics():
     if not os.path.exists(TOPICS_FILE):
@@ -318,9 +154,6 @@ def proj_probo_menu(spec_code: str):
 # =========================
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    chat_id = update.effective_chat.id
-    user = update.effective_user
-    track_user(user.id)
     intro_text = (
         "👋 أهلاً بك في بوت IVR copilot من تطوير جمعية IVR الهندسية\n\n"
         "📌 طريقة استخدام البوت: \n\n"
@@ -344,16 +177,13 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 async def inst(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user = update.effective_user
-    track_user(user.id)
     await update.message.reply_text(
         "📘 هذا البوت تعليمي يعتمد على القوائم.\n"
         "تنقّل بين التخصصات والمواد باستخدام الأزرار فقط."
     )
 
 async def about(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user = update.effective_user
-    track_user(user.id)
+    
     about_text = (
         "✳️ ما هي جمعية IVR\n\n"
         "⬅️ هي مؤسسة طلابية تطوعية غير ربحية مستقلة تقوم على تيسير أمور الطلبة في جامعة فلسطين التقنية (خضوري) ورفع مستواهم أكاديمياً ودينياً وثقافياً وعلمياً."
@@ -400,9 +230,6 @@ async def about(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # =========================
 
 async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    chat_id = update.effective_chat.id
-    user = update.effective_user
-    track_user(user.id)
     query = update.callback_query
     await query.answer()
     data = query.data
@@ -1565,7 +1392,6 @@ async def copy_all_messages(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def handle_admin_reply(update: Update, context: ContextTypes.DEFAULT_TYPE):
     msg = update.message
     user = msg.from_user
-    track_user(user.id)
     if msg.chat_id != TARGET_CHAT_ID:
         await copy_all_messages(update, context)
         return
